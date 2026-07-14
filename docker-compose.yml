@@ -1,0 +1,13 @@
+services:
+  app:
+    platform: linux/amd64
+    build: .
+    container_name: lazismu_sragen
+    ports:
+      - "8100:80"
+    volumes:
+      - ./src:/var/www/html # Sinkronisasi folder lokal ke container
+    env_file:
+      - .env # Copy dari .env.example, isi kredensial dev
+    environment:
+      - CI_ENV=development

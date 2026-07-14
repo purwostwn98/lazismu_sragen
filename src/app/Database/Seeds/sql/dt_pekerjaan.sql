@@ -1,0 +1,15 @@
+INSERT INTO `dt_pekerjaan` (`id_pekerjaan`, `nama_pekerjaan`) VALUES
+('1', 'Tidak bekerja'),
+('2', 'Pelajar'),
+('3', 'Karyawan swasta'),
+('4', 'Wiraswasta'),
+('5', 'PNS'),
+('6', 'Karyawan BUMN'),
+('7', 'TNI/Polisi'),
+('8', 'Guru/Pengajar'),
+('9', 'Petani'),
+('10', 'Peternak'),
+('11', 'Nelayan'),
+('12', 'Buruh'),
+('13', 'Ibu rumah tangga'),
+('14', 'Lainnya');
