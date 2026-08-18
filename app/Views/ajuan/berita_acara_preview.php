@@ -12,10 +12,20 @@ $lembaga      = $lembaga ?? [];
 $tanggalRapat = $tanggalRapat ?? null;
 
 $bulan = [
-  1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+  1 => 'Januari',
+  'Februari',
+  'Maret',
+  'April',
+  'Mei',
+  'Juni',
+  'Juli',
+  'Agustus',
+  'September',
+  'Oktober',
+  'November',
+  'Desember',
 ];
-$fmtTgl = static fn (array $t) => $t[2] . ' ' . $bulan[(int) $t[1]] . ' ' . $t[0];
+$fmtTgl = static fn(array $t) => $t[2] . ' ' . $bulan[(int) $t[1]] . ' ' . $t[0];
 
 $tglPenyerahan = explode('-', $beritaAcara['tanggal_penyerahan']);
 ?>
@@ -30,7 +40,7 @@ $tglPenyerahan = explode('-', $beritaAcara['tanggal_penyerahan']);
       <i class="icon-base ti tabler-arrow-left me-1"></i>Kembali
     </a>
     <a href="<?= base_url('ajuan/berita-acara/' . $beritaAcara['id_berita_acara'] . '/cetak') ?>" target="_blank" class="btn btn-label-danger btn-sm">
-      <i class="icon-base ti tabler-file-type-pdf me-1"></i>Cetak C1, C2, B3
+      <i class="icon-base ti tabler-file-type-pdf me-1"></i>Cetak Berita Acara
     </a>
     <a href="<?= base_url('ajuan/berita-acara/' . $beritaAcara['id_berita_acara'] . '/kuitansi') ?>" target="_blank" class="btn btn-label-secondary btn-sm">
       <i class="icon-base ti tabler-receipt me-1"></i>Cetak C17 Kuitansi

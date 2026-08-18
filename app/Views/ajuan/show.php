@@ -123,9 +123,14 @@ $statusLabels = array_column($statusList, 'keterangan_status', 'id_status');
           <div class="col-md-6 mb-3">
             <span class="ajuan-field-label">No. Telepon Pemohon</span>
             <span class="ajuan-field-value">
-              <?php if (!empty($ajuan['telepon'])): ?>
-                <a href="https://wa.me/<?= esc(preg_replace('/^0/', '62', preg_replace('/\D/', '', $ajuan['telepon']))) ?>" target="_blank" rel="noopener">
-                  <?= esc($ajuan['telepon']) ?>
+              <?php
+              $teleponPemohon = $ajuan['telepon'] ?? '';
+              $teleponPemohon = is_array($teleponPemohon) ? implode('', $teleponPemohon) : (string) $teleponPemohon;
+              $nomorWaPemohon = !empty($teleponPemohon) ? preg_replace('/^0/', '62', preg_replace('/\D/', '', $teleponPemohon)) : '';
+              ?>
+              <?php if (!empty($teleponPemohon)): ?>
+                <a href="https://wa.me/<?= esc($nomorWaPemohon) ?>" target="_blank" rel="noopener">
+                  <?= esc($teleponPemohon) ?>
                 </a>
               <?php else: ?>
                 -
@@ -708,7 +713,7 @@ $statusLabels = array_column($statusList, 'keterangan_status', 'id_status');
                       <a href="<?= base_url('ajuan/berita-acara/' . $ba['id_berita_acara'] . '/preview') ?>" target="_blank" class="btn btn-icon btn-text-secondary rounded-pill" title="Preview">
                         <i class="icon-base ti tabler-file-text"></i>
                       </a>
-                      <a href="<?= base_url('ajuan/berita-acara/' . $ba['id_berita_acara'] . '/cetak') ?>" target="_blank" class="btn btn-icon btn-text-secondary rounded-pill" title="Cetak C1, C2, B3">
+                      <a href="<?= base_url('ajuan/berita-acara/' . $ba['id_berita_acara'] . '/cetak') ?>" target="_blank" class="btn btn-icon btn-text-secondary rounded-pill" title="Cetak Berita Acara">
                         <i class="icon-base ti tabler-printer"></i>
                       </a>
                       <a href="<?= base_url('ajuan/berita-acara/' . $ba['id_berita_acara'] . '/kuitansi') ?>" target="_blank" class="btn btn-icon btn-text-secondary rounded-pill" title="Cetak C17 Kuitansi">

@@ -9,6 +9,7 @@ use App\Models\DelegasiStModel;
 use App\Models\DokumentasiModel;
 use App\Models\FormB3Model;
 use App\Models\IndividuModel;
+use App\Models\JabatanPenjabatModel;
 use App\Models\KategoriPenerimaModel;
 use App\Models\KategoriProgramModel;
 use App\Models\KuitansiModel;
@@ -109,6 +110,20 @@ class AjuanController extends BaseController
             ['title' => 'Ajuan Lembaga', 'activeMenu' => 'ajuan-lembaga'],
             $this->groupedAjuan('Lembaga')
         ));
+    }
+
+    public function rutin()
+    {
+        $rows = $this->ajuanModel->withRelasi()
+            ->whereIn('tr_ajuan.status_ajuan', [8])
+            ->orderBy('tgl_diajukan', 'DESC')
+            ->findAll();
+
+        return view('ajuan/rutin', [
+            'title'      => 'Ajuan Rutin',
+            'activeMenu' => 'ajuan-rutin',
+            'rows'       => $rows,
+        ]);
     }
 
     /**
@@ -326,9 +341,14 @@ class AjuanController extends BaseController
             ->orderBy('ad_berita_acara.id_berita_acara', 'DESC')
             ->findAll();
 
+        $activeMenu = $ajuan['jenis_ajuan'] === 'Individu' ? 'ajuan-individu' : 'ajuan-lembaga';
+        if ($this->request->getGet('from') === 'rutin') {
+            $activeMenu = 'ajuan-rutin';
+        }
+
         $data = [
             'title'       => 'Detail Ajuan ' . $nomorAjuan,
-            'activeMenu'  => $ajuan['jenis_ajuan'] === 'Individu' ? 'ajuan-individu' : 'ajuan-lembaga',
+            'activeMenu'  => $activeMenu,
             'ajuan'       => $ajuan,
             'individu'    => $ajuan['jenis_ajuan'] === 'Individu' ? $this->individuModel->withMustahik()->where('tr_individu.nomor_ajuan', $nomorAjuan)->first() : null,
             'lembaga'     => $ajuan['jenis_ajuan'] === 'Lembaga' ? $this->lembagaModel->withLembaga()->where('tr_lembaga.nomor_ajuan', $nomorAjuan)->first() : null,
@@ -673,6 +693,9 @@ class AjuanController extends BaseController
 
         $ajuan    = $this->ajuanModel->withRelasi()->where('tr_ajuan.nomor_ajuan', $beritaAcara['nomor_ajuan'])->first();
         $pemohon  = $this->pemohonModel->withWilayah()->where('tr_pemohon.nik', $ajuan['nik'])->first();
+        $individu = $ajuan['jenis_ajuan'] === 'Individu'
+            ? $this->individuModel->withMustahik()->where('tr_individu.nomor_ajuan', $beritaAcara['nomor_ajuan'])->first()
+            : null;
         $lembaga  = $ajuan['jenis_ajuan'] === 'Lembaga'
             ? $this->lembagaModel->withLembaga()->where('tr_lembaga.nomor_ajuan', $beritaAcara['nomor_ajuan'])->first()
             : null;
@@ -681,13 +704,21 @@ class AjuanController extends BaseController
             ? $this->logAjuanModel->where('nomor_ajuan', $beritaAcara['nomor_ajuan'])->where('status_ajuan', 3)->first()
             : null;
 
+        $namaKadivProgram = (new JabatanPenjabatModel())
+            ->join('jabatan', 'jabatan.id = jabatan_penjabat.id_jabatan')
+            ->where('jabatan.kode_jabatan', 'kepala_program')
+            ->orderBy('jabatan_penjabat.mulai_tahun', 'DESC')
+            ->first()['nama_penjabat'] ?? '';
+
         $html = view('ajuan/pdf/berita_acara', [
-            'beritaAcara'  => $beritaAcara,
-            'ajuan'        => $ajuan,
-            'pemohon'      => $pemohon,
-            'lembaga'      => $lembaga,
-            'tanggalRapat' => $rapatLog['tanggal_log'] ?? null,
-            'terbilang'    => terbilang((float) $beritaAcara['nilai_penyerahan']),
+            'beritaAcara'      => $beritaAcara,
+            'ajuan'            => $ajuan,
+            'pemohon'          => $pemohon,
+            'individu'         => $individu,
+            'lembaga'          => $lembaga,
+            'tanggalRapat'     => $rapatLog['tanggal_log'] ?? null,
+            'terbilang'        => terbilang((float) $beritaAcara['nilai_penyerahan']),
+            'namaKadivProgram' => $namaKadivProgram,
         ]);
 
         $pdf = new TCPDF('P', PDF_UNIT, 'A4', true, 'UTF-8', false);
@@ -758,12 +789,44 @@ class AjuanController extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        $ajuan = $this->ajuanModel->withRelasi()->where('tr_ajuan.nomor_ajuan', $beritaAcara['nomor_ajuan'])->first();
+        $ajuan    = $this->ajuanModel->withRelasi()->where('tr_ajuan.nomor_ajuan', $beritaAcara['nomor_ajuan'])->first();
+        $individu = $ajuan['jenis_ajuan'] === 'Individu'
+            ? $this->individuModel->withMustahik()->where('tr_individu.nomor_ajuan', $beritaAcara['nomor_ajuan'])->first()
+            : null;
+        $lembaga = $ajuan['jenis_ajuan'] === 'Lembaga'
+            ? $this->lembagaModel->withLembaga()->where('tr_lembaga.nomor_ajuan', $beritaAcara['nomor_ajuan'])->first()
+            : null;
+
+        $b3 = $this->formB3Model
+            ->select('tr_form_b3.*, prg.nama_program, kp.nama_kategori')
+            ->join('ad_program prg', 'prg.id_program = tr_form_b3.id_program', 'left')
+            ->join('ad_kategori_program kp', 'kp.id_kategori_program = tr_form_b3.id_kategori_program', 'left')
+            ->where('tr_form_b3.nomor_ajuan', $beritaAcara['nomor_ajuan'])
+            ->first();
+
+        $penjabatModel    = new JabatanPenjabatModel();
+        $namaManajer      = $penjabatModel
+            ->join('jabatan', 'jabatan.id = jabatan_penjabat.id_jabatan')
+            ->where('jabatan.kode_jabatan', 'manajer')
+            ->orderBy('jabatan_penjabat.mulai_tahun', 'DESC')
+            ->first()['nama_penjabat'] ?? '';
+        $namaKadivProgram = $penjabatModel
+            ->join('jabatan', 'jabatan.id = jabatan_penjabat.id_jabatan')
+            ->where('jabatan.kode_jabatan', 'kepala_program')
+            ->orderBy('jabatan_penjabat.mulai_tahun', 'DESC')
+            ->first()['nama_penjabat'] ?? '';
 
         $html = view('ajuan/pdf/c17_kwitansi', [
             'beritaAcara' => $beritaAcara,
             'ajuan'       => $ajuan,
+            'individu'    => $individu,
+            'lembaga'     => $lembaga,
+            'b3'          => $b3,
             'terbilang'   => terbilang((float) $beritaAcara['nilai_penyerahan']),
+            'nilai_penyerahan' => (float) $beritaAcara['nilai_penyerahan'],
+            'nilai_disetujui' => (float) $ajuan['nilai_disetujui'],
+            'namaManajer'      => $namaManajer,
+            'namaKadivProgram' => $namaKadivProgram,
         ]);
 
         $pdf = new TCPDF('P', PDF_UNIT, 'A4', true, 'UTF-8', false);
@@ -771,7 +834,7 @@ class AjuanController extends BaseController
         $pdf->SetAuthor('Lazismu Sragen');
         $pdf->SetTitle('C17 Kwitansi ' . $idBeritaAcara);
         $pdf->SetSubject('C17 Kwitansi ' . $idBeritaAcara);
-        $pdf->SetMargins(PDF_MARGIN_LEFT, 5, PDF_MARGIN_RIGHT);
+        $pdf->SetMargins(3, 4, 3);
         $pdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
         $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
         $pdf->setPrintHeader(false);

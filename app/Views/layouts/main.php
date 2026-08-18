@@ -92,7 +92,7 @@
           <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Transaksi</span>
           </li>
-          <?php $ajuanSubActive = in_array($activeMenu ?? '', ['ajuan', 'ajuan-individu', 'ajuan-lembaga'], true); ?>
+          <?php $ajuanSubActive = in_array($activeMenu ?? '', ['ajuan', 'ajuan-individu', 'ajuan-lembaga', 'ajuan-rutin'], true); ?>
           <li class="menu-item <?= $ajuanSubActive ? 'active open' : '' ?>">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
               <i class="menu-icon icon-base ti tabler-file-description"></i>
@@ -107,6 +107,11 @@
               <li class="menu-item <?= ($activeMenu ?? '') === 'ajuan-lembaga' ? 'active' : '' ?>">
                 <a href="<?= base_url('ajuan/lembaga') ?>" class="menu-link">
                   <div data-i18n="Ajuan Lembaga">Ajuan Lembaga</div>
+                </a>
+              </li>
+              <li class="menu-item <?= ($activeMenu ?? '') === 'ajuan-rutin' ? 'active' : '' ?>">
+                <a href="<?= base_url('ajuan/rutin') ?>" class="menu-link">
+                  <div data-i18n="Ajuan Rutin">Ajuan Rutin</div>
                 </a>
               </li>
             </ul>
@@ -135,6 +140,25 @@
               <li class="menu-item <?= ($activeMenu ?? '') === 'program' ? 'active' : '' ?>">
                 <a href="<?= base_url('program') ?>" class="menu-link">
                   <div data-i18n="Kegiatan">Kegiatan</div>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <?php $organisasiSubActive = in_array($activeMenu ?? '', ['jabatan', 'penjabat'], true); ?>
+          <li class="menu-item <?= $organisasiSubActive ? 'active open' : '' ?>">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+              <i class="menu-icon icon-base ti tabler-building-community"></i>
+              <div data-i18n="Organisasi">Organisasi</div>
+            </a>
+            <ul class="menu-sub">
+              <li class="menu-item <?= ($activeMenu ?? '') === 'jabatan' ? 'active' : '' ?>">
+                <a href="<?= base_url('jabatan') ?>" class="menu-link">
+                  <div data-i18n="Jabatan">Jabatan</div>
+                </a>
+              </li>
+              <li class="menu-item <?= ($activeMenu ?? '') === 'penjabat' ? 'active' : '' ?>">
+                <a href="<?= base_url('penjabat') ?>" class="menu-link">
+                  <div data-i18n="Penjabat">Penjabat</div>
                 </a>
               </li>
             </ul>

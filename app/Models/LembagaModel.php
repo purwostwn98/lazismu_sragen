@@ -17,7 +17,7 @@ class LembagaModel extends Model
      */
     public function withLembaga()
     {
-        return $this->select('tr_lembaga.id_lembaga, tr_lembaga.nomor_ajuan, tr_lembaga.nomor_lembaga, ms_lembaga.nama_lembaga, ms_lembaga.alamat AS alamat_lembaga')
+        return $this->select('tr_lembaga.id_lembaga, tr_lembaga.nomor_ajuan, tr_lembaga.nomor_lembaga, ms_lembaga.nama_lembaga, ms_lembaga.alamat AS alamat_lembaga, ms_lembaga.nomor_telepon')
             ->join('ms_lembaga', 'ms_lembaga.nomor_legalitas = tr_lembaga.nomor_lembaga');
     }
 }

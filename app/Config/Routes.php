@@ -60,6 +60,17 @@ $routes->group('', ['filter' => 'auth'], static function (RouteCollection $route
     $routes->post('program/update/(:num)', 'ProgramController::update/$1');
     $routes->post('program/delete/(:num)', 'ProgramController::delete/$1');
 
+    // Organisasi: Jabatan & Penjabat
+    $routes->get('jabatan', 'JabatanController::index');
+    $routes->post('jabatan/store', 'JabatanController::store');
+    $routes->post('jabatan/update/(:num)', 'JabatanController::update/$1');
+    $routes->post('jabatan/delete/(:num)', 'JabatanController::delete/$1');
+
+    $routes->get('penjabat', 'PenjabatController::index');
+    $routes->post('penjabat/store', 'PenjabatController::store');
+    $routes->post('penjabat/update/(:num)', 'PenjabatController::update/$1');
+    $routes->post('penjabat/delete/(:num)', 'PenjabatController::delete/$1');
+
     // Penghimpunan (fundraising)
     $routes->get('penghimpunan', 'PenghimpunanController::index');
     $routes->post('penghimpunan/store', 'PenghimpunanController::store');
@@ -89,6 +100,7 @@ $routes->group('', ['filter' => 'auth'], static function (RouteCollection $route
     $routes->get('ajuan', 'AjuanController::index');
     $routes->get('ajuan/individu', 'AjuanController::individu');
     $routes->get('ajuan/lembaga', 'AjuanController::lembaga');
+    $routes->get('ajuan/rutin', 'AjuanController::rutin');
     $routes->get('ajuan/create', 'AjuanController::create');
     $routes->post('ajuan/store', 'AjuanController::store');
     $routes->post('ajuan/cek-individu', 'AjuanController::cekIndividu');
