@@ -122,8 +122,8 @@
           </li>
           <li class="menu-item <?= ($activeMenu ?? '') === 'dashboard-disposisi' ? 'active' : '' ?>">
             <a href="<?= base_url('disposisi/dashboard') ?>" class="menu-link">
-              <i class="menu-icon icon-base ti tabler-map-pin-check"></i>
-              <div data-i18n="Surveyor">Dashboard Disposisi</div>
+              <i class="menu-icon icon-base ti tabler-layout-dashboard"></i>
+              <div data-i18n="Dashboard Disposisi">Dashboard Disposisi</div>
             </a>
           </li>
           <li class="menu-item <?= ($activeMenu ?? '') === 'surveyor' ? 'active' : '' ?>">

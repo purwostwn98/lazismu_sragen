@@ -126,6 +126,7 @@ $routes->group('', ['filter' => 'auth'], static function (RouteCollection $route
     $routes->post('ajuan/(:segment)/kuitansi', 'AjuanController::storeKuitansi/$1');
 
     // Disposisi (ajuan worklist per role/stage)
+    $routes->get('disposisi/dashboard', 'DisposisiController::dashboard');
     $routes->get('disposisi/surveyor', 'DisposisiController::surveyor');
     $routes->get('disposisi/survey/(:segment)', 'DisposisiController::survey/$1');
     $routes->post('disposisi/survey/(:segment)/store', 'DisposisiController::storeSurvey/$1');

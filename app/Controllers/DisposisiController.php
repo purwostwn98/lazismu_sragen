@@ -34,6 +34,84 @@ class DisposisiController extends BaseController
         $this->logAjuanModel  = new LogAjuanModel();
     }
 
+    /** Dashboard: how many ajuan are pending/done at each disposisi stage, recommendation breakdowns, and recent activity. */
+    public function dashboard()
+    {
+        $stages = ['Surveyor', 'Kepala Divisi Program', 'Manager', 'Badan Pengurus'];
+
+        $nomorPerStage = [];
+        foreach ($stages as $stage) {
+            $nomorPerStage[$stage] = $this->nomorAjuanWithDisposisi($stage);
+        }
+
+        $totalDalamAlur = $this->ajuanModel->where('status_ajuan <=', 5)->countAllResults();
+
+        $belumDisurvey = $nomorPerStage['Surveyor'] === []
+            ? $totalDalamAlur
+            : $this->ajuanModel->where('status_ajuan <=', 5)->whereNotIn('nomor_ajuan', $nomorPerStage['Surveyor'])->countAllResults();
+
+        $menungguKadiv   = count(array_diff($nomorPerStage['Surveyor'], $nomorPerStage['Kepala Divisi Program']));
+        $menungguManager = count(array_diff($nomorPerStage['Kepala Divisi Program'], $nomorPerStage['Manager']));
+
+        // Ajuan yang sudah ditinjau Manager dan nilainya di atas ambang wajib lanjut ke Badan Pengurus.
+        $perluBadanPengurus = $nomorPerStage['Manager'] === []
+            ? []
+            : ($this->ajuanModel->select('nomor_ajuan')
+                ->whereIn('nomor_ajuan', $nomorPerStage['Manager'])
+                ->where('nilai_diajukan >', self::AMBANG_BADAN_PENGURUS)
+                ->findColumn('nomor_ajuan') ?? []);
+
+        $menungguBadanPengurus = count(array_diff($perluBadanPengurus, $nomorPerStage['Badan Pengurus']));
+        $selesaiTanpaBadan     = count($nomorPerStage['Manager']) - count($perluBadanPengurus);
+        $selesaiDenganBadan    = count(array_intersect($perluBadanPengurus, $nomorPerStage['Badan Pengurus']));
+
+        // Rekap rekomendasi (disetujui/ditolak) per tahap, dari hasil terbaru masing-masing ajuan.
+        $rekapTahap = [];
+        foreach ($stages as $stage) {
+            $map       = $this->disposisiMapFor($nomorPerStage[$stage], $stage);
+            $disetujui = 0;
+            $ditolak   = 0;
+            $nominal   = 0.0;
+
+            foreach ($map as $d) {
+                if ((int) $d['rekomendasi'] === 1) {
+                    $disetujui++;
+                    $nominal += (float) $d['nominal_rekomendasi'];
+                } else {
+                    $ditolak++;
+                }
+            }
+
+            $rekapTahap[$stage] = ['disetujui' => $disetujui, 'ditolak' => $ditolak, 'nominal' => $nominal];
+        }
+
+        $aktivitasTerbaru = $this->disposisiModel
+            ->select('ad_disposisi.id, ad_disposisi.nomor_ajuan, ad_disposisi.oleh, ad_disposisi.rekomendasi, ad_disposisi.nominal_rekomendasi, ad_disposisi.nama_petugas, ad_disposisi.created_at, tr_pemohon.nama_pemohon, ad_program.nama_program')
+            ->join('tr_ajuan', 'tr_ajuan.nomor_ajuan = ad_disposisi.nomor_ajuan', 'left')
+            ->join('tr_pemohon', 'tr_pemohon.nik = tr_ajuan.nik', 'left')
+            ->join('ad_program', 'ad_program.id_program = tr_ajuan.id_program', 'left')
+            ->orderBy('ad_disposisi.created_at', 'DESC')
+            ->limit(10)
+            ->findAll();
+
+        return view('disposisi/dashboard', [
+            'title'                 => 'Dashboard Disposisi',
+            'activeMenu'            => 'dashboard-disposisi',
+            'totalDalamAlur'        => $totalDalamAlur,
+            'belumDisurvey'         => $belumDisurvey,
+            'sudahDisurvey'         => count($nomorPerStage['Surveyor']),
+            'menungguKadiv'         => $menungguKadiv,
+            'menungguManager'       => $menungguManager,
+            'perluBadanPengurus'    => count($perluBadanPengurus),
+            'menungguBadanPengurus' => $menungguBadanPengurus,
+            'selesaiTanpaBadan'     => $selesaiTanpaBadan,
+            'selesaiDenganBadan'    => $selesaiDenganBadan,
+            'jumlahPerTahap'        => array_map('count', $nomorPerStage),
+            'rekapTahap'            => $rekapTahap,
+            'aktivitasTerbaru'      => $aktivitasTerbaru,
+        ]);
+    }
+
     /** Worklist for the Surveyor: ajuan still at or before the Survey stage. */
     public function surveyor()
     {
