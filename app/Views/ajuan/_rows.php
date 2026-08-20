@@ -1,8 +1,8 @@
-<?php $rows = $rows ?? []; $from = $from ?? null; ?>
+<?php $rows = $rows ?? []; $from = $from ?? null; $baseUrl = $baseUrl ?? 'ajuan/'; ?>
 <?php foreach ($rows as $i => $a): ?>
   <?php
     $statusColor = ajuan_status_color(isset($a['status_ajuan']) ? (int) $a['status_ajuan'] : null);
-    $detailUrl   = base_url('ajuan/' . $a['nomor_ajuan']) . ($from ? '?from=' . urlencode($from) : '');
+    $detailUrl   = base_url($baseUrl . $a['nomor_ajuan']) . ($from ? '?from=' . urlencode($from) : '');
   ?>
   <tr>
     <td><?= $i + 1 ?></td>

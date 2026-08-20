@@ -118,6 +118,40 @@
           </li>
 
           <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Disposisi</span>
+          </li>
+          <li class="menu-item <?= ($activeMenu ?? '') === 'dashboard-disposisi' ? 'active' : '' ?>">
+            <a href="<?= base_url('disposisi/dashboard') ?>" class="menu-link">
+              <i class="menu-icon icon-base ti tabler-map-pin-check"></i>
+              <div data-i18n="Surveyor">Dashboard Disposisi</div>
+            </a>
+          </li>
+          <li class="menu-item <?= ($activeMenu ?? '') === 'surveyor' ? 'active' : '' ?>">
+            <a href="<?= base_url('disposisi/surveyor') ?>" class="menu-link">
+              <i class="menu-icon icon-base ti tabler-map-pin-check"></i>
+              <div data-i18n="Surveyor">Surveyor</div>
+            </a>
+          </li>
+          <li class="menu-item <?= ($activeMenu ?? '') === 'kepala-divisi-program' ? 'active' : '' ?>">
+            <a href="<?= base_url('disposisi/kepala-divisi-program') ?>" class="menu-link">
+              <i class="menu-icon icon-base ti tabler-briefcase"></i>
+              <div data-i18n="Kepala Divisi Program">Kepala Divisi Program</div>
+            </a>
+          </li>
+          <li class="menu-item <?= ($activeMenu ?? '') === 'manager' ? 'active' : '' ?>">
+            <a href="<?= base_url('disposisi/manager') ?>" class="menu-link">
+              <i class="menu-icon icon-base ti tabler-user-star"></i>
+              <div data-i18n="Manager">Manager</div>
+            </a>
+          </li>
+          <li class="menu-item <?= ($activeMenu ?? '') === 'badan-pengurus' ? 'active' : '' ?>">
+            <a href="<?= base_url('disposisi/badan-pengurus') ?>" class="menu-link">
+              <i class="menu-icon icon-base ti tabler-gavel"></i>
+              <div data-i18n="Badan Pengurus">Badan Pengurus</div>
+            </a>
+          </li>
+
+          <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Data Master</span>
           </li>
           <?php $programSubActive = in_array($activeMenu ?? '', ['pilar', 'kategori-program', 'program'], true); ?>

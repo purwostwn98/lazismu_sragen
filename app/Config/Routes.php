@@ -124,4 +124,19 @@ $routes->group('', ['filter' => 'auth'], static function (RouteCollection $route
     $routes->get('ajuan/berita-acara/(:num)/kuitansi', 'AjuanController::pdfC17Kwitansi/$1');
     $routes->post('ajuan/(:segment)/dokumentasi', 'AjuanController::storeDokumentasi/$1');
     $routes->post('ajuan/(:segment)/kuitansi', 'AjuanController::storeKuitansi/$1');
+
+    // Disposisi (ajuan worklist per role/stage)
+    $routes->get('disposisi/surveyor', 'DisposisiController::surveyor');
+    $routes->get('disposisi/survey/(:segment)', 'DisposisiController::survey/$1');
+    $routes->post('disposisi/survey/(:segment)/store', 'DisposisiController::storeSurvey/$1');
+    $routes->get('disposisi/dokumentasi/(:num)', 'DisposisiController::fileDokumentasi/$1');
+    $routes->get('disposisi/kepala-divisi-program', 'DisposisiController::kepalaDivisiProgram');
+    $routes->get('disposisi/kepala-divisi-program/(:segment)', 'DisposisiController::reviewKepalaDivisiProgram/$1');
+    $routes->post('disposisi/kepala-divisi-program/(:segment)/store', 'DisposisiController::storeKepalaDivisiProgram/$1');
+    $routes->get('disposisi/manager', 'DisposisiController::manager');
+    $routes->get('disposisi/manager/(:segment)', 'DisposisiController::reviewManager/$1');
+    $routes->post('disposisi/manager/(:segment)/store', 'DisposisiController::storeManager/$1');
+    $routes->get('disposisi/badan-pengurus', 'DisposisiController::badanPengurus');
+    $routes->get('disposisi/badan-pengurus/(:segment)', 'DisposisiController::reviewBadanPengurus/$1');
+    $routes->post('disposisi/badan-pengurus/(:segment)/store', 'DisposisiController::storeBadanPengurus/$1');
 });
