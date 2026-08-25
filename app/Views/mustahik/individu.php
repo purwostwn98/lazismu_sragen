@@ -68,7 +68,7 @@ if (!function_exists('mustahikFields')) {
   {
     $m += [
       'nama_mustahik' => '', 'kelamin_mustahik' => '', 'tempat_lahir' => '', 'tgl_lahir' => '',
-      'agama_mustahik' => '', 'jml_keluarga' => '', 'alamat' => '', 'status_pendidikan' => '',
+      'agama_mustahik' => '', 'jml_keluarga' => '', 'dusun' => '', 'rt' => '', 'rw' => '', 'status_pendidikan' => '',
       'status_marital' => '', 'pekerjaan' => '', 'penghasilan' => '', 'no_handphone' => '', 'email' => '', 'kk' => '',
     ];
 ?>
@@ -118,9 +118,17 @@ if (!function_exists('mustahikFields')) {
     ]);
     ?>
 
-    <div class="col-12 mb-3">
-      <label class="form-label">Alamat Detail</label>
-      <textarea name="alamat" class="form-control" rows="2" required><?= esc($m['alamat']) ?></textarea>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Dusun / Nama Jalan</label>
+      <input type="text" name="dusun" class="form-control" value="<?= esc($m['dusun']) ?>" required />
+    </div>
+    <div class="col-md-3 mb-3">
+      <label class="form-label">RT</label>
+      <input type="number" name="rt" class="form-control" min="0" value="<?= esc($m['rt']) ?>" />
+    </div>
+    <div class="col-md-3 mb-3">
+      <label class="form-label">RW</label>
+      <input type="number" name="rw" class="form-control" min="0" value="<?= esc($m['rw']) ?>" />
     </div>
     <div class="col-md-4 mb-3">
       <label class="form-label">Status Pendidikan</label>

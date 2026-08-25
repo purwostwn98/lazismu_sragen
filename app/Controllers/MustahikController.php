@@ -50,7 +50,7 @@ class MustahikController extends BaseController
         $rules = [
             'nama_mustahik'    => ['label' => 'Nama', 'rules' => 'required', 'errors' => ['required' => '{field} tidak boleh kosong']],
             'kelamin_mustahik' => ['label' => 'Jenis kelamin', 'rules' => 'required', 'errors' => ['required' => '{field} wajib dipilih']],
-            'alamat'           => ['label' => 'Alamat', 'rules' => 'required', 'errors' => ['required' => '{field} tidak boleh kosong']],
+            'dusun'            => ['label' => 'Dusun/Nama Jalan', 'rules' => 'required', 'errors' => ['required' => '{field} tidak boleh kosong']],
         ];
 
         if ($nik === null) {
@@ -68,7 +68,14 @@ class MustahikController extends BaseController
             'tempat_lahir'      => $this->request->getPost('tempat_lahir'),
             'tgl_lahir'         => $this->request->getPost('tgl_lahir') ?: null,
             'agama_mustahik'    => $this->request->getPost('agama_mustahik'),
-            'alamat'            => $this->request->getPost('alamat'),
+            'alamat'            => susun_alamat_rt_rw(
+                $this->request->getPost('dusun'),
+                $this->request->getPost('rt'),
+                $this->request->getPost('rw')
+            ),
+            'dusun'             => $this->request->getPost('dusun') ?: null,
+            'rt'                => $this->request->getPost('rt') ?: null,
+            'rw'                => $this->request->getPost('rw') ?: null,
             'provinsi'          => $this->request->getPost('provinsi') ?: null,
             'kabupaten'         => $this->request->getPost('kabupaten') ?: null,
             'kecamatan'         => $this->request->getPost('kecamatan') ?: null,
@@ -181,7 +188,8 @@ class MustahikController extends BaseController
         $data = [
             'title'      => 'Mustahik Lembaga',
             'activeMenu' => 'mustahik-lembaga',
-            'lembaga'    => $this->lembagaModel->orderBy('nama_lembaga', 'ASC')->findAll(),
+            'lembaga'    => $this->lembagaModel->withWilayah()->orderBy('nama_lembaga', 'ASC')->findAll(),
+            'provinsi'   => (new ProvinsiModel())->orderBy('nama_provinsi', 'ASC')->findAll(),
         ];
 
         return view('mustahik/lembaga', $data);
@@ -193,7 +201,7 @@ class MustahikController extends BaseController
             'nomor_legalitas' => ['label' => 'Nomor legalitas', 'rules' => 'required', 'errors' => ['required' => '{field} tidak boleh kosong']],
             'nama_lembaga'    => ['label' => 'Nama lembaga', 'rules' => 'required', 'errors' => ['required' => '{field} tidak boleh kosong']],
             'bidang'          => ['label' => 'Bidang', 'rules' => 'required', 'errors' => ['required' => '{field} tidak boleh kosong']],
-            'alamat'          => ['label' => 'Alamat', 'rules' => 'required', 'errors' => ['required' => '{field} tidak boleh kosong']],
+            'dusun'           => ['label' => 'Dusun/Nama Jalan', 'rules' => 'required', 'errors' => ['required' => '{field} tidak boleh kosong']],
             'nomor_telepon'   => ['label' => 'Nomor telepon', 'rules' => 'required', 'errors' => ['required' => '{field} tidak boleh kosong']],
             'email'           => ['label' => 'Email', 'rules' => 'required|valid_email', 'errors' => ['required' => '{field} tidak boleh kosong', 'valid_email' => '{field} tidak valid']],
             'nama_pj'         => ['label' => 'Nama penanggung jawab', 'rules' => 'required', 'errors' => ['required' => '{field} tidak boleh kosong']],
@@ -209,7 +217,18 @@ class MustahikController extends BaseController
             'bidang'           => $this->request->getPost('bidang'),
             'tahun_berdiri'    => $this->request->getPost('tahun_berdiri') ?: null,
             'npwp'             => $this->request->getPost('npwp'),
-            'alamat'           => $this->request->getPost('alamat'),
+            'alamat'           => susun_alamat_rt_rw(
+                $this->request->getPost('dusun'),
+                $this->request->getPost('rt'),
+                $this->request->getPost('rw')
+            ),
+            'dusun'            => $this->request->getPost('dusun') ?: null,
+            'rt'               => $this->request->getPost('rt') ?: null,
+            'rw'               => $this->request->getPost('rw') ?: null,
+            'provinsi'         => $this->request->getPost('provinsi') ?: null,
+            'kabupaten'        => $this->request->getPost('kabupaten') ?: null,
+            'kecamatan'        => $this->request->getPost('kecamatan') ?: null,
+            'desa'             => $this->request->getPost('desa') ?: null,
             'nomor_telepon'    => $this->request->getPost('nomor_telepon'),
             'email'            => $this->request->getPost('email'),
             'website'          => $this->request->getPost('website'),

@@ -225,7 +225,14 @@ class AjuanController extends BaseController
                 'tgl_lahir'         => $this->request->getPost('tgl_lahir_mustahik') ?: null,
                 'kelamin_mustahik'  => $this->request->getPost('kelamin_mustahik'),
                 'agama_mustahik'    => $this->request->getPost('agama_mustahik'),
-                'alamat'            => $this->request->getPost('alamat_mustahik'),
+                'alamat'            => susun_alamat_rt_rw(
+                    $this->request->getPost('dusun_mustahik'),
+                    $this->request->getPost('rt_mustahik'),
+                    $this->request->getPost('rw_mustahik')
+                ),
+                'dusun'             => $this->request->getPost('dusun_mustahik') ?: null,
+                'rt'                => $this->request->getPost('rt_mustahik') ?: null,
+                'rw'                => $this->request->getPost('rw_mustahik') ?: null,
                 'provinsi'          => $this->request->getPost('provinsi_mustahik'),
                 'kabupaten'         => $this->request->getPost('kabupaten_mustahik'),
                 'kecamatan'         => $this->request->getPost('kecamatan_mustahik'),
@@ -263,7 +270,18 @@ class AjuanController extends BaseController
                 'tahun_berdiri'    => $this->request->getPost('tahun_berdiri_lembaga') ?: null,
                 'nomor_legalitas'  => $nomorLembaga,
                 'npwp'             => $this->request->getPost('npwp_lembaga') ?: null,
-                'alamat'           => $this->request->getPost('alamat_lembaga'),
+                'alamat'           => susun_alamat_rt_rw(
+                    $this->request->getPost('dusun_lembaga'),
+                    $this->request->getPost('rt_lembaga'),
+                    $this->request->getPost('rw_lembaga')
+                ),
+                'dusun'            => $this->request->getPost('dusun_lembaga') ?: null,
+                'rt'               => $this->request->getPost('rt_lembaga') ?: null,
+                'rw'               => $this->request->getPost('rw_lembaga') ?: null,
+                'provinsi'         => $this->request->getPost('provinsi_lembaga') ?: null,
+                'kabupaten'        => $this->request->getPost('kabupaten_lembaga') ?: null,
+                'kecamatan'        => $this->request->getPost('kecamatan_lembaga') ?: null,
+                'desa'             => $this->request->getPost('kelurahan_lembaga') ?: null,
                 'nomor_telepon'    => $this->request->getPost('telepon_lembaga') ?: '-',
                 'email'            => $this->request->getPost('email_lembaga') ?: 'belum@diisi.com',
                 'website'          => $this->request->getPost('website_lembaga') ?: null,
@@ -859,7 +877,7 @@ class AjuanController extends BaseController
         $valid = [
             'nama_mustahik'    => ['label' => 'Nama', 'rules' => 'required', 'errors' => ['required' => '{field} wajib diisi']],
             'kelamin_mustahik' => ['label' => 'Jenis kelamin', 'rules' => 'required', 'errors' => ['required' => '{field} wajib dipilih']],
-            'alamat'           => ['label' => 'Alamat', 'rules' => 'required', 'errors' => ['required' => '{field} wajib diisi']],
+            'dusun'            => ['label' => 'Dusun/Nama Jalan', 'rules' => 'required', 'errors' => ['required' => '{field} wajib diisi']],
         ];
 
         if (!$this->validate($valid)) {
@@ -876,7 +894,14 @@ class AjuanController extends BaseController
             'tempat_lahir'      => $this->request->getPost('tempat_lahir'),
             'tgl_lahir'         => $this->request->getPost('tgl_lahir') ?: null,
             'agama_mustahik'    => $this->request->getPost('agama_mustahik'),
-            'alamat'            => $this->request->getPost('alamat'),
+            'alamat'            => susun_alamat_rt_rw(
+                $this->request->getPost('dusun'),
+                $this->request->getPost('rt'),
+                $this->request->getPost('rw')
+            ),
+            'dusun'             => $this->request->getPost('dusun') ?: null,
+            'rt'                => $this->request->getPost('rt') ?: null,
+            'rw'                => $this->request->getPost('rw') ?: null,
             'status_pendidikan' => $this->request->getPost('status_pendidikan'),
             'status_marital'    => $this->request->getPost('status_marital'),
             'jml_keluarga'      => $this->request->getPost('jml_keluarga') ?: null,

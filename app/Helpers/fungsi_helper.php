@@ -42,6 +42,25 @@ if (!function_exists('ajuan_status_color')) {
     }
 }
 
+if (!function_exists('susun_alamat_rt_rw')) {
+    /**
+     * Composes an `alamat` string from separate Dusun/Nama Jalan + RT + RW
+     * fields (used for both ms_individu and ms_lembaga, whose forms capture
+     * these separately but every existing view/PDF still reads `alamat` as
+     * one string).
+     */
+    function susun_alamat_rt_rw(?string $dusun, $rt, $rw): string
+    {
+        $dusun = trim((string) $dusun);
+        $rt    = ($rt !== null && $rt !== '') ? sprintf('%03d', (int) $rt) : null;
+        $rw    = ($rw !== null && $rw !== '') ? sprintf('%03d', (int) $rw) : null;
+
+        $rtRw = ($rt !== null || $rw !== null) ? 'RT ' . ($rt ?? '-') . '/RW ' . ($rw ?? '-') : null;
+
+        return implode(', ', array_filter([$dusun !== '' ? $dusun : null, $rtRw]));
+    }
+}
+
 if (!function_exists('format_tanggal_indo')) {
     /** Formats a 'Y-m-d' or 'Y-m-d H:i:s' value as Indonesian "d Bulan Y[ H:i]". */
     function format_tanggal_indo(?string $value, bool $withTime = false): string

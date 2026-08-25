@@ -1,12 +1,67 @@
 <?php
 $lembaga = $lembaga ?? [];
+$provinsi = $provinsi ?? [];
+
+/** Same 4 cascading wilayah selects as mustahik/individu.php's wilayahSelectsMustahik(), scoped to this file. */
+if (!function_exists('wilayahSelectsLembaga')) {
+  function wilayahSelectsLembaga(array $provinsiList, array $selected = [], array $labels = []): void
+  {
+    $selected += ['provinsi' => '', 'kabupaten' => '', 'kecamatan' => '', 'kelurahan' => ''];
+    $labels += ['kabupaten' => '', 'kecamatan' => '', 'kelurahan' => ''];
+?>
+    <div class="row wilayah-block" data-selected-kabupaten="<?= esc($selected['kabupaten']) ?>" data-selected-kecamatan="<?= esc($selected['kecamatan']) ?>" data-selected-kelurahan="<?= esc($selected['kelurahan']) ?>">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Provinsi</label>
+        <select name="provinsi" class="form-select sel-provinsi">
+          <option value="">-- Pilih Provinsi --</option>
+          <?php foreach ($provinsiList as $p): ?>
+            <option value="<?= $p['id_provinsi'] ?>" <?= (string) $selected['provinsi'] === (string) $p['id_provinsi'] ? 'selected' : '' ?>>
+              <?= esc($p['nama_provinsi']) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Kabupaten/Kota</label>
+        <select name="kabupaten" class="form-select sel-kabupaten">
+          <?php if ($labels['kabupaten']): ?>
+            <option value="<?= esc($selected['kabupaten']) ?>" selected><?= esc($labels['kabupaten']) ?></option>
+          <?php else: ?>
+            <option value="">-- Pilih Provinsi dahulu --</option>
+          <?php endif; ?>
+        </select>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Kecamatan</label>
+        <select name="kecamatan" class="form-select sel-kecamatan">
+          <?php if ($labels['kecamatan']): ?>
+            <option value="<?= esc($selected['kecamatan']) ?>" selected><?= esc($labels['kecamatan']) ?></option>
+          <?php else: ?>
+            <option value="">-- Pilih Kabupaten dahulu --</option>
+          <?php endif; ?>
+        </select>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Kelurahan/Desa</label>
+        <select name="desa" class="form-select sel-kelurahan">
+          <?php if ($labels['kelurahan']): ?>
+            <option value="<?= esc($selected['kelurahan']) ?>" selected><?= esc($labels['kelurahan']) ?></option>
+          <?php else: ?>
+            <option value="">-- Pilih Kecamatan dahulu --</option>
+          <?php endif; ?>
+        </select>
+      </div>
+    </div>
+<?php
+  }
+}
 
 if (!function_exists('lembagaFields')) {
-  function lembagaFields(array $l = []): void
+  function lembagaFields(array $provinsiList, array $l = []): void
   {
     $l += [
       'nomor_legalitas' => '', 'nama_lembaga' => '', 'bidang' => '', 'tahun_berdiri' => '',
-      'npwp' => '', 'alamat' => '', 'nomor_telepon' => '', 'email' => '', 'website' => '',
+      'npwp' => '', 'dusun' => '', 'rt' => '', 'rw' => '', 'nomor_telepon' => '', 'email' => '', 'website' => '',
       'nama_pj' => '', 'jabatan_pj' => '', 'sumber_pendanaan' => '', 'nomor_rekening' => '',
     ];
 ?>
@@ -26,9 +81,31 @@ if (!function_exists('lembagaFields')) {
       <label class="form-label">Bidang</label>
       <input type="text" name="bidang" class="form-control" placeholder="mis. Pendidikan, Sosial, Dakwah" value="<?= esc($l['bidang']) ?>" required />
     </div>
-    <div class="col-12 mb-3">
-      <label class="form-label">Alamat Lembaga</label>
-      <input type="text" name="alamat" class="form-control" value="<?= esc($l['alamat']) ?>" required />
+
+    <?php
+    wilayahSelectsLembaga($provinsiList, [
+      'provinsi'  => $l['provinsi'] ?? '',
+      'kabupaten' => $l['kabupaten'] ?? '',
+      'kecamatan' => $l['kecamatan'] ?? '',
+      'kelurahan' => $l['desa'] ?? '',
+    ], [
+      'kabupaten' => $l['nama_kabupaten'] ?? '',
+      'kecamatan' => $l['nama_kecamatan'] ?? '',
+      'kelurahan' => $l['nama_kelurahan'] ?? '',
+    ]);
+    ?>
+
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Dusun / Nama Jalan</label>
+      <input type="text" name="dusun" class="form-control" value="<?= esc($l['dusun']) ?>" required />
+    </div>
+    <div class="col-md-3 mb-3">
+      <label class="form-label">RT</label>
+      <input type="number" name="rt" class="form-control" min="0" value="<?= esc($l['rt']) ?>" />
+    </div>
+    <div class="col-md-3 mb-3">
+      <label class="form-label">RW</label>
+      <input type="number" name="rw" class="form-control" min="0" value="<?= esc($l['rw']) ?>" />
     </div>
     <div class="col-md-4 mb-3">
       <label class="form-label">NPWP</label>
@@ -123,7 +200,7 @@ if (!function_exists('lembagaFields')) {
           </tr>
 
           <!-- Edit modal -->
-          <div class="modal fade" id="modalEditLembaga<?= $l['id_ms_lembaga'] ?>" tabindex="-1" aria-hidden="true">
+          <div class="modal fade modal-mustahik" id="modalEditLembaga<?= $l['id_ms_lembaga'] ?>" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
               <div class="modal-content">
                 <form action="<?= base_url('mustahik/lembaga/update/' . $l['id_ms_lembaga']) ?>" method="post">
@@ -134,7 +211,7 @@ if (!function_exists('lembagaFields')) {
                   </div>
                   <div class="modal-body">
                     <div class="row">
-                      <?php lembagaFields($l); ?>
+                      <?php lembagaFields($provinsi, $l); ?>
                     </div>
                   </div>
                   <div class="modal-footer">
@@ -152,7 +229,7 @@ if (!function_exists('lembagaFields')) {
 </div>
 
 <!-- Tambah modal -->
-<div class="modal fade" id="modalTambahLembaga" tabindex="-1" aria-hidden="true">
+<div class="modal fade modal-mustahik" id="modalTambahLembaga" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <form action="<?= base_url('mustahik/lembaga/store') ?>" method="post">
@@ -163,7 +240,7 @@ if (!function_exists('lembagaFields')) {
         </div>
         <div class="modal-body">
           <div class="row">
-            <?php lembagaFields(); ?>
+            <?php lembagaFields($provinsi); ?>
           </div>
         </div>
         <div class="modal-footer">
@@ -175,4 +252,8 @@ if (!function_exists('lembagaFields')) {
   </div>
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('pageScripts') ?>
+<script src="<?= base_url('assets/js/wilayah-cascade.js') ?>"></script>
 <?= $this->endSection() ?>

@@ -236,9 +236,17 @@ $statusLabels = array_column($statusList, 'keterangan_status', 'id_status');
                     <label class="form-label">Jumlah Keluarga</label>
                     <input type="number" name="jml_keluarga" class="form-control" min="0" value="<?= esc($individu['jml_keluarga']) ?>" />
                   </div>
-                  <div class="col-12 mb-3">
-                    <label class="form-label">Alamat</label>
-                    <textarea name="alamat" class="form-control" rows="2" required><?= esc($individu['alamat']) ?></textarea>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Dusun / Nama Jalan</label>
+                    <input type="text" name="dusun" class="form-control" value="<?= esc($individu['dusun'] ?? '') ?>" />
+                  </div>
+                  <div class="col-md-3 mb-3">
+                    <label class="form-label">RT</label>
+                    <input type="number" name="rt" class="form-control" min="0" value="<?= esc($individu['rt'] ?? '') ?>" />
+                  </div>
+                  <div class="col-md-3 mb-3">
+                    <label class="form-label">RW</label>
+                    <input type="number" name="rw" class="form-control" min="0" value="<?= esc($individu['rw'] ?? '') ?>" />
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="form-label">Status Pendidikan</label>

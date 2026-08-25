@@ -10,7 +10,7 @@ class MasterIndividuModel extends Model
     protected $primaryKey = 'nik';
     protected $allowedFields = [
         'nik', 'nama_mustahik', 'kelamin_mustahik', 'agama_mustahik', 'tempat_lahir', 'tgl_lahir',
-        'alamat', 'provinsi', 'kabupaten', 'kecamatan', 'desa', 'status_pendidikan', 'status_marital',
+        'alamat', 'dusun', 'rt', 'rw', 'provinsi', 'kabupaten', 'kecamatan', 'desa', 'status_pendidikan', 'status_marital',
         'pekerjaan', 'penghasilan', 'jml_keluarga', 'no_handphone', 'email', 'foto_ktp', 'kk', 'foto_kk',
     ];
     protected $useTimestamps = true;

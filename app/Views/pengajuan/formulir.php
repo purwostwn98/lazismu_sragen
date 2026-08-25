@@ -189,9 +189,17 @@ $penghasilan = $penghasilan ?? [];
           </div>
         </div>
 
-        <div class="col-12 mb-3">
-          <label class="form-label">Alamat Detail</label>
-          <textarea name="alamat_mustahik" id="alamatMustahik" class="form-control" rows="2"></textarea>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Dusun / Nama Jalan</label>
+          <input type="text" name="dusun_mustahik" id="dusunMustahik" class="form-control" />
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">RT</label>
+          <input type="number" name="rt_mustahik" id="rtMustahik" class="form-control" min="0" />
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">RW</label>
+          <input type="number" name="rw_mustahik" id="rwMustahik" class="form-control" min="0" />
         </div>
         <div class="col-md-4 mb-3">
           <label class="form-label">Status Pendidikan</label>
@@ -280,9 +288,47 @@ $penghasilan = $penghasilan ?? [];
           <label class="form-label">Bidang</label>
           <input type="text" name="bidang_lembaga" id="bidangLembaga" class="form-control" placeholder="mis. Pendidikan, Sosial, Dakwah" />
         </div>
-        <div class="col-12 mb-3">
-          <label class="form-label">Alamat Lembaga</label>
-          <input type="text" name="alamat_lembaga" id="alamatLembaga" class="form-control" />
+        <div class="row wilayah-block">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Provinsi</label>
+            <select name="provinsi_lembaga" class="form-select sel-provinsi">
+              <option value="">-- Pilih Provinsi --</option>
+              <?php foreach ($provinsi as $p): ?>
+                <option value="<?= $p['id_provinsi'] ?>"><?= esc($p['nama_provinsi']) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Kabupaten/Kota</label>
+            <select name="kabupaten_lembaga" class="form-select sel-kabupaten">
+              <option value="">-- Pilih Provinsi dahulu --</option>
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Kecamatan</label>
+            <select name="kecamatan_lembaga" class="form-select sel-kecamatan">
+              <option value="">-- Pilih Kabupaten dahulu --</option>
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Kelurahan/Desa</label>
+            <select name="kelurahan_lembaga" class="form-select sel-kelurahan">
+              <option value="">-- Pilih Kecamatan dahulu --</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Dusun / Nama Jalan</label>
+          <input type="text" name="dusun_lembaga" id="dusunLembaga" class="form-control" />
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">RT</label>
+          <input type="number" name="rt_lembaga" id="rtLembaga" class="form-control" min="0" />
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">RW</label>
+          <input type="number" name="rw_lembaga" id="rwLembaga" class="form-control" min="0" />
         </div>
         <div class="col-md-3 mb-3">
           <label class="form-label">Tahun Berdiri</label>
@@ -404,7 +450,9 @@ $penghasilan = $penghasilan ?? [];
           setValue('kelaminMustahik', d.kelamin_mustahik);
           setValue('agamaMustahik', d.agama_mustahik);
           setValue('jmlKeluarga', d.jml_keluarga);
-          setValue('alamatMustahik', d.alamat);
+          setValue('dusunMustahik', d.dusun);
+          setValue('rtMustahik', d.rt);
+          setValue('rwMustahik', d.rw);
           setValue('statusPendidikan', d.status_pendidikan);
           setValue('statusMarital', d.status_marital);
           setValue('pekerjaanMustahik', d.pekerjaan);
@@ -460,7 +508,9 @@ $penghasilan = $penghasilan ?? [];
           var d = res.data;
           setValue('namaLembaga', d.nama_lembaga);
           setValue('bidangLembaga', d.bidang);
-          setValue('alamatLembaga', d.alamat);
+          setValue('dusunLembaga', d.dusun);
+          setValue('rtLembaga', d.rt);
+          setValue('rwLembaga', d.rw);
           setValue('tahunBerdiriLembaga', d.tahun_berdiri);
           setValue('npwpLembaga', d.npwp);
           setValue('teleponLembaga', d.nomor_telepon);
@@ -470,6 +520,16 @@ $penghasilan = $penghasilan ?? [];
           setValue('namaPjLembaga', d.nama_pj);
           setValue('jabatanPjLembaga', d.jabatan_pj);
           setValue('sumberPendanaanLembaga', d.sumber_pendanaan);
+
+          var lembagaBlock = document.querySelector('#blokLembaga .wilayah-block');
+          if (lembagaBlock && window.WilayahCascade) {
+            window.WilayahCascade.resolve(lembagaBlock, {
+              provinsi: d.provinsi,
+              kabupaten: d.kabupaten,
+              kecamatan: d.kecamatan,
+              kelurahan: d.desa
+            });
+          }
 
           resultEl.innerHTML = alertBox('success', 'Data lembaga ditemukan dan otomatis diisi. Silakan periksa kembali sebelum mengirim.');
         })
