@@ -31,20 +31,29 @@ class AjuanNotifier
         float $nilaiDiajukan,
         string $deskripsiAjuan
     ): void {
-        $pemohon      = (new PemohonModel())->withWilayah()->find($nik);
-        $namaKategori = $idKategoriProgram ? ((new KategoriProgramModel())->find($idKategoriProgram)['nama_kategori'] ?? null) : null;
-        $namaProgram  = $idProgram ? ((new ProgramModel())->find($idProgram)['nama_program'] ?? null) : null;
+        // Wrapped end-to-end: a DB hiccup while resolving pemohon/kategori/
+        // program (this ran uncaught before — a transient "MySQL server has
+        // gone away" here would have crashed the whole ajuan submission
+        // request instead of just skipping the notification) must never
+        // propagate past this method.
+        try {
+            $pemohon      = (new PemohonModel())->withWilayah()->find($nik);
+            $namaKategori = $idKategoriProgram ? ((new KategoriProgramModel())->find($idKategoriProgram)['nama_kategori'] ?? null) : null;
+            $namaProgram  = $idProgram ? ((new ProgramModel())->find($idProgram)['nama_program'] ?? null) : null;
 
-        $baris = [
-            'namaPemohon'   => $pemohon['nama_pemohon'] ?? '-',
-            'alamatPemohon' => $this->susunAlamat($pemohon),
-            'jenisAjuan'    => $jenisAjuan,
-            'namaKategori'  => $namaKategori ?? '-',
-            'namaProgram'   => $namaProgram ?? '-',
-        ];
+            $baris = [
+                'namaPemohon'   => $pemohon['nama_pemohon'] ?? '-',
+                'alamatPemohon' => $this->susunAlamat($pemohon),
+                'jenisAjuan'    => $jenisAjuan,
+                'namaKategori'  => $namaKategori ?? '-',
+                'namaProgram'   => $namaProgram ?? '-',
+            ];
 
-        $this->kirimKePenjabat($nomorAjuan, $baris, $nilaiDiajukan, $deskripsiAjuan);
-        $this->kirimKePemohon($nomorAjuan, $pemohon, $baris, $nilaiDiajukan, $deskripsiAjuan);
+            $this->kirimKePenjabat($nomorAjuan, $baris, $nilaiDiajukan, $deskripsiAjuan);
+            $this->kirimKePemohon($nomorAjuan, $pemohon, $baris, $nilaiDiajukan, $deskripsiAjuan);
+        } catch (\Throwable $e) {
+            log_message('error', 'Gagal menyiapkan notifikasi ajuan baru (' . $nomorAjuan . '): ' . $e->getMessage());
+        }
     }
 
     private function kirimKePenjabat(string $nomorAjuan, array $b, float $nilaiDiajukan, string $deskripsiAjuan): void
@@ -79,7 +88,13 @@ class AjuanNotifier
             $email->setTo($emails);
             $email->setSubject('Ajuan Baru: ' . $nomorAjuan);
             $email->setMessage($isi);
-            $email->send();
+
+            // send() fails "quietly" — it returns false rather than
+            // throwing, so a failed send here would otherwise leave no
+            // trace at all in the logs.
+            if (!$email->send()) {
+                log_message('error', 'Gagal mengirim notifikasi ajuan baru ke penjabat (' . $nomorAjuan . '): ' . strip_tags($email->printDebugger(['headers'])));
+            }
         } catch (\Throwable $e) {
             log_message('error', 'Gagal mengirim notifikasi ajuan baru ke penjabat: ' . $e->getMessage());
         }
@@ -113,7 +128,10 @@ class AjuanNotifier
             $email->setTo($pemohon['email']);
             $email->setSubject('Ajuan Anda Berhasil Diajukan - ' . $nomorAjuan);
             $email->setMessage($isi);
-            $email->send();
+
+            if (!$email->send()) {
+                log_message('error', 'Gagal mengirim konfirmasi ajuan ke pemohon (' . $nomorAjuan . '): ' . strip_tags($email->printDebugger(['headers'])));
+            }
         } catch (\Throwable $e) {
             log_message('error', 'Gagal mengirim konfirmasi ajuan ke pemohon: ' . $e->getMessage());
         }
