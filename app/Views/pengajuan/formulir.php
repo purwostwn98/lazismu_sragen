@@ -13,7 +13,7 @@ $provinsi = $provinsi ?? [];
 $pekerjaan = $pekerjaan ?? [];
 $penghasilan = $penghasilan ?? [];
 ?>
-<form action="<?= base_url('pengajuan/formulir/store') ?>" method="post" enctype="multipart/form-data">
+<form id="formAjuan" action="<?= base_url('pengajuan/formulir/store') ?>" method="post" enctype="multipart/form-data">
   <?= csrf_field() ?>
   <input type="hidden" name="nik" value="<?= esc($pemohon['nik']) ?>" />
 
@@ -370,8 +370,13 @@ $penghasilan = $penghasilan ?? [];
     </div>
   </div>
 
+  <div id="alertKirimAjuan" class="alert alert-info d-none align-items-center gap-2 mb-3" role="alert">
+    <span class="spinner-border spinner-border-sm flex-shrink-0" role="status" aria-hidden="true"></span>
+    <span>Ajuan sedang dalam proses pengiriman, mohon tunggu dan jangan tutup halaman ini...</span>
+  </div>
+
   <div class="d-flex gap-2 mb-4">
-    <button type="submit" class="btn btn-primary">Kirim Ajuan</button>
+    <button type="submit" id="btnKirimAjuan" class="btn btn-primary">Kirim Ajuan</button>
     <a href="<?= base_url('/') ?>" class="btn btn-label-secondary">Batal</a>
   </div>
 </form>
@@ -388,6 +393,22 @@ $penghasilan = $penghasilan ?? [];
 
     window.ProgramCascade.init(document);
     window.CurrencyFormat.init(document);
+
+    var formAjuan = document.getElementById('formAjuan');
+    var btnKirimAjuan = document.getElementById('btnKirimAjuan');
+    var alertKirimAjuan = document.getElementById('alertKirimAjuan');
+
+    formAjuan.addEventListener('submit', function() {
+      // Fires only after the browser's own required/pattern validation
+      // passes, so this never shows the loading state for a submit that
+      // actually got blocked by a validation error.
+      btnKirimAjuan.disabled = true;
+      btnKirimAjuan.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Mengirim...';
+
+      alertKirimAjuan.classList.remove('d-none');
+      alertKirimAjuan.classList.add('d-flex');
+      alertKirimAjuan.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
 
     var jenisIndividu = document.getElementById('jenisIndividu');
     var jenisLembaga = document.getElementById('jenisLembaga');
