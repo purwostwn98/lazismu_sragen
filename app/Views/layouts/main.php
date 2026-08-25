@@ -222,6 +222,16 @@
               </li>
             </ul>
           </li>
+
+          <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Pengaturan</span>
+          </li>
+          <li class="menu-item <?= ($activeMenu ?? '') === 'user' ? 'active' : '' ?>">
+            <a href="<?= base_url('user') ?>" class="menu-link">
+              <i class="menu-icon icon-base ti tabler-user-cog"></i>
+              <div data-i18n="Manajemen User">Manajemen User</div>
+            </a>
+          </li>
         </ul>
       </aside>
 

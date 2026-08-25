@@ -140,4 +140,10 @@ $routes->group('', ['filter' => 'auth'], static function (RouteCollection $route
     $routes->get('disposisi/badan-pengurus', 'DisposisiController::badanPengurus');
     $routes->get('disposisi/badan-pengurus/(:segment)', 'DisposisiController::reviewBadanPengurus/$1');
     $routes->post('disposisi/badan-pengurus/(:segment)/store', 'DisposisiController::storeBadanPengurus/$1');
+
+    // Manajemen User
+    $routes->get('user', 'UserController::index');
+    $routes->post('user/store', 'UserController::store');
+    $routes->post('user/update/(:num)', 'UserController::update/$1');
+    $routes->post('user/delete/(:num)', 'UserController::delete/$1');
 });
