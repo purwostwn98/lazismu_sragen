@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\AjuanNotifier;
 use App\Models\AjuanModel;
 use App\Models\BentukPenyerahanModel;
 use App\Models\BeritaAcaraModel;
@@ -213,6 +214,16 @@ class AjuanController extends BaseController
 
             return redirect()->to(base_url('ajuan/create'))->withInput();
         }
+
+        (new AjuanNotifier())->notifikasiAjuanBaru(
+            $nomorAjuan,
+            (string) $this->request->getPost('nik'),
+            (string) $this->request->getPost('jenis_ajuan'),
+            (int) $this->request->getPost('id_kategori_program') ?: null,
+            (int) $this->request->getPost('id_program') ?: null,
+            (float) $this->request->getPost('nilai_diajukan'),
+            (string) $this->request->getPost('deskripsi_ajuan')
+        );
 
         if ($this->request->getPost('jenis_ajuan') === 'Individu') {
             $nikMustahik = $this->request->getPost('nik_mustahik') ?: $this->request->getPost('nik');
