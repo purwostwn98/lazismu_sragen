@@ -122,6 +122,7 @@ $routes->group('', ['filter' => 'auth'], static function (RouteCollection $route
     $routes->get('ajuan/berita-acara/(:num)/cetak', 'AjuanController::pdfBeritaAcara/$1');
     $routes->get('ajuan/berita-acara/(:num)/preview', 'AjuanController::previewBeritaAcara/$1');
     $routes->get('ajuan/berita-acara/(:num)/kuitansi', 'AjuanController::pdfC17Kwitansi/$1');
+    $routes->get('ajuan/berita-acara/(:num)/c1', 'AjuanController::downloadC1/$1');
     $routes->post('ajuan/(:segment)/dokumentasi', 'AjuanController::storeDokumentasi/$1');
     $routes->post('ajuan/(:segment)/kuitansi', 'AjuanController::storeKuitansi/$1');
 

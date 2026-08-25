@@ -27,10 +27,14 @@ use App\Models\StatusAjuanModel;
 use App\Models\SuratTugasModel;
 use App\Models\SyaratModel;
 use CodeIgniter\HTTP\Files\UploadedFile;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use TCPDF;
 
 class AjuanController extends BaseController
 {
+    /** Nominal disetujui threshold above which the C1 export uses the "DIATAS 5JT" template (with a Ketua Badan Pengurus signature column). */
+    private const AMBANG_C1_BESAR = 5000000;
+
     protected AjuanModel $ajuanModel;
     protected IndividuModel $individuModel;
     protected LembagaModel $lembagaModel;
@@ -864,6 +868,123 @@ class AjuanController extends BaseController
             ->setContentType('application/pdf')
             ->setHeader('Content-Disposition', 'inline; filename="C17-Kwitansi-' . $idBeritaAcara . '.pdf"')
             ->setBody($pdf->Output('C17-Kwitansi-' . $idBeritaAcara . '.pdf', 'S'));
+    }
+
+    /**
+     * Excel export of the C1 "Permohonan Pencairan Dana" form for a berita
+     * acara's disbursement. Uses the DIATAS/DIBAWAH 5 juta template
+     * depending on the ajuan's nilai_disetujui (same threshold the
+     * disposisi workflow uses for routing to Badan Pengurus).
+     */
+    public function downloadC1(int $idBeritaAcara)
+    {
+        $beritaAcara = $this->beritaAcaraModel->find($idBeritaAcara);
+
+        if (!$beritaAcara) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $ajuan = $this->ajuanModel->withRelasi()->where('tr_ajuan.nomor_ajuan', $beritaAcara['nomor_ajuan'])->first();
+
+        $individu = $ajuan['jenis_ajuan'] === 'Individu'
+            ? $this->individuModel->withMustahik()->where('tr_individu.nomor_ajuan', $beritaAcara['nomor_ajuan'])->first()
+            : null;
+        $lembaga = $ajuan['jenis_ajuan'] === 'Lembaga'
+            ? $this->lembagaModel->withLembaga()->where('tr_lembaga.nomor_ajuan', $beritaAcara['nomor_ajuan'])->first()
+            : null;
+        $namaPenerima  = $individu['nama_mustahik'] ?? $lembaga['nama_lembaga'] ?? '-';
+        $alamatPenerima = $individu['alamat'] ?? $lembaga['alamat_lembaga'] ?? '-';
+
+        // The "PROGRAM" / "Golongan Asnaf" columns use Form B3's classification
+        // (kategori program / pilar) rather than the ajuan's own initial
+        // id_program, matching how the C17 kuitansi already sources its
+        // Program field — B3 reflects what was actually disbursed.
+        $b3 = $this->formB3Model
+            ->select('tr_form_b3.*, kp.nama_kategori, pl.nama_pilar')
+            ->join('ad_kategori_program kp', 'kp.id_kategori_program = tr_form_b3.id_kategori_program', 'left')
+            ->join('dt_pilar pl', 'pl.id_pilar = kp.id_pilar', 'left')
+            ->where('tr_form_b3.nomor_ajuan', $beritaAcara['nomor_ajuan'])
+            ->first();
+
+        $namaProgram = $b3['nama_kategori'] ?? $ajuan['nama_program'] ?? '-';
+        $namaPilar   = $b3['nama_pilar'] ?? '-';
+
+        $penjabatModel = new JabatanPenjabatModel();
+        $cariPenjabat  = static fn (string $kode): string => $penjabatModel
+            ->join('jabatan', 'jabatan.id = jabatan_penjabat.id_jabatan')
+            ->where('jabatan.kode_jabatan', $kode)
+            ->orderBy('jabatan_penjabat.mulai_tahun', 'DESC')
+            ->first()['nama_penjabat'] ?? '';
+
+        $namaKepalaProgram  = $cariPenjabat('kepala_program');
+        $namaKepalaKeuangan = $cariPenjabat('kepala_keuangan');
+        $namaManajer        = $cariPenjabat('manajer');
+        $namaKetuaBadan     = $cariPenjabat('ketua_badan');
+
+        $nilaiDisetujui = (float) $ajuan['nilai_disetujui'];
+        $besar          = $nilaiDisetujui > self::AMBANG_C1_BESAR;
+
+        $bulanIndo    = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        $ts           = strtotime((string) $ajuan['tgl_diajukan']) ?: time();
+        $namaBulan    = $bulanIndo[(int) date('n', $ts)];
+        $tahun        = date('Y', $ts);
+        $periode      = 'PERIODE ' . mb_strtoupper($namaBulan) . ' ' . $tahun;
+        $tglPengajuan = sprintf('%02d %s %s', (int) date('j', $ts), $namaBulan, $tahun);
+
+        // "Pencairan Dana Via" has no bank-name field anywhere in the schema
+        // (rekening_penyerahan is just an account number) — best available
+        // substitute is the fund source plus that account number.
+        $pencairanVia = (string) ($beritaAcara['dana_dari'] ?? '');
+        if (!empty($beritaAcara['rekening_penyerahan'])) {
+            $pencairanVia .= ' - ' . $beritaAcara['rekening_penyerahan'];
+        }
+
+        $templatePath = APPPATH . 'Resources/templates/' . ($besar ? 'c1_diatas_5jt.xlsx' : 'c1_dibawah_5jt.xlsx');
+        $spreadsheet  = IOFactory::load($templatePath);
+        $sheet        = $spreadsheet->getActiveSheet();
+
+        $sheet->setCellValue('A2', $periode);
+        $sheet->setCellValue('A4', 'Pemohon       : ' . $namaKepalaProgram);
+        $sheet->setCellValue('G4', $ajuan['nomor_ajuan']);
+        $sheet->setCellValue('G5', $tglPengajuan);
+
+        if ($besar) {
+            $sheet->setCellValue('A7', $alamatPenerima);
+            $sheet->setCellValue('B9', $namaPenerima);
+            $sheet->setCellValue('D9', $namaProgram);
+            $sheet->setCellValue('F9', $nilaiDisetujui);
+            $sheet->setCellValue('D24', $pencairanVia);
+            $sheet->setCellValue('D25', $namaPilar);
+            $sheet->setCellValue('A33', $namaKetuaBadan);
+            $sheet->setCellValue('C33', $namaManajer);
+            $sheet->setCellValue('E33', $namaKepalaKeuangan);
+            $sheet->setCellValue('G33', $namaKepalaProgram);
+            $sheet->getCell('F20')->getCalculatedValue();
+            $sheet->getCell('C22')->getCalculatedValue();
+        } else {
+            $sheet->setCellValue('A8', $alamatPenerima);
+            $sheet->setCellValue('B10', $namaPenerima);
+            $sheet->setCellValue('D10', $namaProgram);
+            $sheet->setCellValue('F10', $nilaiDisetujui);
+            $sheet->setCellValue('D25', $pencairanVia);
+            $sheet->setCellValue('D26', $namaPilar);
+            $sheet->setCellValue('A34', $namaManajer);
+            $sheet->setCellValue('D34', $namaKepalaKeuangan);
+            $sheet->setCellValue('G34', $namaKepalaProgram);
+            $sheet->getCell('F21')->getCalculatedValue();
+            $sheet->getCell('C23')->getCalculatedValue();
+        }
+
+        $filename = 'C1-' . $ajuan['nomor_ajuan'] . '.xlsx';
+
+        ob_start();
+        IOFactory::createWriter($spreadsheet, 'Xlsx')->save('php://output');
+        $content = ob_get_clean();
+
+        return $this->response
+            ->setContentType('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            ->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->setBody($content);
     }
 
     public function updateMustahik(string $nomorAjuan)

@@ -45,6 +45,9 @@ $tglPenyerahan = explode('-', $beritaAcara['tanggal_penyerahan']);
     <a href="<?= base_url('ajuan/berita-acara/' . $beritaAcara['id_berita_acara'] . '/kuitansi') ?>" target="_blank" class="btn btn-label-secondary btn-sm">
       <i class="icon-base ti tabler-receipt me-1"></i>Cetak C17 Kuitansi
     </a>
+    <a href="<?= base_url('ajuan/berita-acara/' . $beritaAcara['id_berita_acara'] . '/c1') ?>" class="btn btn-label-success btn-sm">
+      <i class="icon-base ti tabler-file-spreadsheet me-1"></i>Download C1 (Excel)
+    </a>
     <?php if (!empty($beritaAcara['file_berita_acara'])): ?>
       <a href="<?= base_url('ajuan/berita-acara/' . $beritaAcara['id_berita_acara'] . '/bukti') ?>" target="_blank" class="btn btn-label-success btn-sm">
         <i class="icon-base ti tabler-file-check me-1"></i>Lihat Bukti
