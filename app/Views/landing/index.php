@@ -583,6 +583,14 @@ $totalProgram  = $totalProgram ?? 0;
       <div class="lp-hero-blob a"></div>
       <div class="lp-hero-blob b"></div>
       <div class="container-xxl text-center lp-hero-content">
+        <div class="mb-3">
+          <div style="font-weight: 800; font-size: 1.5rem; color: #111827; letter-spacing: 0.02em;">
+            SIMPUL <span style="color: var(--bs-primary);">Sragen</span>
+          </div>
+          <div style="font-size: 0.9rem; color: #6b7280; font-weight: 500;">
+            Sistem Mandiri Pengajuan Umat Lazismu
+          </div>
+        </div>
         <span class="lp-hero-badge">
           <i class="icon-base ti tabler-certificate"></i>
           Lembaga Amil Zakat Resmi Muhammadiyah
