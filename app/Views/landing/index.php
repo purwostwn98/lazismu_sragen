@@ -585,7 +585,7 @@ $totalProgram  = $totalProgram ?? 0;
       <div class="container-xxl text-center lp-hero-content">
         <div class="mb-3">
           <img
-            src="<?= base_url('assets/img/logo/logo_simpul.png') ?>"
+            src="<?= base_url('assets/img/logo/logo_simpul_sragen.png') ?>"
             alt="SIMPUL Sragen"
             style="height: 80px; width: auto;" />
           <div style="font-size: 1.25rem; color: #6b7280; font-weight: 600;" class="mt-3">
