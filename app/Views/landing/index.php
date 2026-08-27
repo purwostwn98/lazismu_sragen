@@ -589,7 +589,7 @@ $totalProgram  = $totalProgram ?? 0;
             alt="SIMPUL Sragen"
             style="height: 80px; width: auto;" />
           <div style="font-size: 1.25rem; color: #6b7280; font-weight: 600;" class="mt-3">
-            Sistem Mandiri Pengajuan Umat by Lazismu
+            Sistem Mandiri Pengajuan Umat by Lazismu Sragen
           </div>
         </div>
         <span class="lp-hero-badge">
