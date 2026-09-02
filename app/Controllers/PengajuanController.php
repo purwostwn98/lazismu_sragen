@@ -3,7 +3,9 @@
 namespace App\Controllers;
 
 use App\Libraries\AjuanNotifier;
+use App\Libraries\FormB2Reader;
 use App\Models\AjuanModel;
+use App\Models\FormB2Model;
 use App\Models\IndividuModel;
 use App\Models\KategoriProgramModel;
 use App\Models\LembagaModel;
@@ -304,6 +306,8 @@ class PengajuanController extends BaseController
             $this->masterIndividuModel->upsert($masterData);
 
             $this->individuModel->insert(['nomor_ajuan' => $nomorAjuan, 'nik' => $nikMustahik]);
+
+            (new FormB2Model())->upsert($nomorAjuan, FormB2Reader::dariRequest($this->request));
         } else {
             $nomorLembaga = strtoupper(trim((string) $this->request->getPost('nomor_lembaga')));
 

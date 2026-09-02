@@ -67,16 +67,19 @@
           <label class="form-label">Deskripsi Ajuan</label>
           <textarea name="deskripsi_ajuan" class="form-control" rows="3" required></textarea>
         </div>
-        <div class="col-12 mb-3" id="templateFormulirBox" style="display: none;">
-          <div class="alert alert-info mb-0">
-            <div class="fw-semibold mb-2">Template Formulir Analisa</div>
-            <ul id="templateFormulirList" class="mb-0"></ul>
-            <div class="mt-2"><i>Download template di atas, isi, lalu unggah pada kolom Formulir di bawah ini.</i></div>
+        <!-- Formulir Analisa: hidden for now, sementara tidak digunakan. -->
+        <div class="d-none">
+          <div class="col-12 mb-3" id="templateFormulirBox" style="display: none;">
+            <div class="alert alert-info mb-0">
+              <div class="fw-semibold mb-2">Template Formulir Analisa</div>
+              <ul id="templateFormulirList" class="mb-0"></ul>
+              <div class="mt-2"><i>Download template di atas, isi, lalu unggah pada kolom Formulir di bawah ini.</i></div>
+            </div>
           </div>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Formulir (opsional)</label>
-          <input type="file" name="file_formulir" class="form-control" />
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Formulir (opsional)</label>
+            <input type="file" name="file_formulir" class="form-control" />
+          </div>
         </div>
         <div class="col-12 mb-3" id="syaratProgramBox" style="display: none;">
           <div class="alert alert-info mb-0">
@@ -94,7 +97,8 @@
     </div>
   </div>
 
-  <div class="card mb-4" id="blokIndividu">
+  <div id="blokIndividu">
+  <div class="card mb-4">
     <div class="card-header"><h5 class="mb-0">Data Mustahik (Individu)</h5></div>
     <div class="card-body">
       <div class="row">
@@ -242,6 +246,9 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <?= $this->include('pengajuan/_form_b2') ?>
   </div>
 
   <div class="card mb-4 d-none" id="blokLembaga">

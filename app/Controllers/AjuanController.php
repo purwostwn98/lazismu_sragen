@@ -3,11 +3,13 @@
 namespace App\Controllers;
 
 use App\Libraries\AjuanNotifier;
+use App\Libraries\FormB2Reader;
 use App\Models\AjuanModel;
 use App\Models\BentukPenyerahanModel;
 use App\Models\BeritaAcaraModel;
 use App\Models\DelegasiStModel;
 use App\Models\DokumentasiModel;
+use App\Models\FormB2Model;
 use App\Models\FormB3Model;
 use App\Models\IndividuModel;
 use App\Models\JabatanPenjabatModel;
@@ -274,6 +276,8 @@ class AjuanController extends BaseController
             $this->masterIndividuModel->upsert($masterData);
 
             $this->individuModel->insert(['nomor_ajuan' => $nomorAjuan, 'nik' => $nikMustahik]);
+
+            (new FormB2Model())->upsert($nomorAjuan, FormB2Reader::dariRequest($this->request));
         } else {
             $nomorLembaga = strtoupper(trim((string) $this->request->getPost('nomor_lembaga')));
 
@@ -379,6 +383,10 @@ class AjuanController extends BaseController
             $activeMenu = 'ajuan-rutin';
         }
 
+        $b2 = $ajuan['jenis_ajuan'] === 'Individu'
+            ? (new FormB2Model())->where('nomor_ajuan', $nomorAjuan)->first()
+            : null;
+
         $data = [
             'title'       => 'Detail Ajuan ' . $nomorAjuan,
             'activeMenu'  => $activeMenu,
@@ -391,6 +399,7 @@ class AjuanController extends BaseController
             'statusList'  => $this->statusAjuanModel->orderBy('id_status', 'ASC')->findAll(),
             'b3'          => $b3,
             'b3Initial'   => $b3Initial,
+            'b2'          => $b2,
             'kategoriPenerima'    => $this->kategoriPenerimaModel->orderBy('id_dana_dari', 'ASC')->findAll(),
             'bentukPenyerahan'    => $this->bentukPenyerahanModel->orderBy('id_bentuk_penyerahan', 'ASC')->findAll(),
             'pilarList'           => (new PilarModel())->orderBy('nama_pilar', 'ASC')->findAll(),
