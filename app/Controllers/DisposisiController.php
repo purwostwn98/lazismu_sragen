@@ -37,6 +37,9 @@ class DisposisiController extends BaseController
     /** Dashboard: how many ajuan are pending/done at each disposisi stage, recommendation breakdowns, and recent activity. */
     public function dashboard()
     {
+        $dari   = $this->request->getGet('dari') ?: null;
+        $sampai = $this->request->getGet('sampai') ?: null;
+
         $stages = ['Surveyor', 'Kepala Divisi Program', 'Manager', 'Badan Pengurus'];
 
         $nomorPerStage = [];
@@ -65,38 +68,39 @@ class DisposisiController extends BaseController
         $selesaiTanpaBadan     = count($nomorPerStage['Manager']) - count($perluBadanPengurus);
         $selesaiDenganBadan    = count(array_intersect($perluBadanPengurus, $nomorPerStage['Badan Pengurus']));
 
-        // Rekap rekomendasi (disetujui/ditolak) per tahap, dari hasil terbaru masing-masing ajuan.
-        $rekapTahap = [];
+        // Rekap rekomendasi (disetujui/ditolak) dan jumlah diproses per tahap,
+        // dari hasil terbaru masing-masing ajuan yang aktivitasnya jatuh di
+        // rentang tanggal filter (default: sepanjang waktu). Ini terpisah
+        // dari angka backlog di atas (yang selalu menggambarkan kondisi
+        // saat ini, tidak masuk akal untuk difilter tanggal).
+        $rekapTahap     = [];
+        $jumlahPerTahap = [];
         foreach ($stages as $stage) {
-            $map       = $this->disposisiMapFor($nomorPerStage[$stage], $stage);
-            $disetujui = 0;
-            $ditolak   = 0;
-            $nominal   = 0.0;
-
-            foreach ($map as $d) {
-                if ((int) $d['rekomendasi'] === 1) {
-                    $disetujui++;
-                    $nominal += (float) $d['nominal_rekomendasi'];
-                } else {
-                    $ditolak++;
-                }
-            }
-
-            $rekapTahap[$stage] = ['disetujui' => $disetujui, 'ditolak' => $ditolak, 'nominal' => $nominal];
+            $rekap                    = $this->rekapTahapTerfilter($stage, $dari, $sampai);
+            $jumlahPerTahap[$stage]   = $rekap['jumlah'];
+            $rekapTahap[$stage]       = ['disetujui' => $rekap['disetujui'], 'ditolak' => $rekap['ditolak'], 'nominal' => $rekap['nominal']];
         }
 
-        $aktivitasTerbaru = $this->disposisiModel
+        $aktivitasQuery = $this->disposisiModel
             ->select('ad_disposisi.id, ad_disposisi.nomor_ajuan, ad_disposisi.oleh, ad_disposisi.rekomendasi, ad_disposisi.nominal_rekomendasi, ad_disposisi.nama_petugas, ad_disposisi.created_at, tr_pemohon.nama_pemohon, ad_program.nama_program')
             ->join('tr_ajuan', 'tr_ajuan.nomor_ajuan = ad_disposisi.nomor_ajuan', 'left')
             ->join('tr_pemohon', 'tr_pemohon.nik = tr_ajuan.nik', 'left')
-            ->join('ad_program', 'ad_program.id_program = tr_ajuan.id_program', 'left')
-            ->orderBy('ad_disposisi.created_at', 'DESC')
-            ->limit(10)
-            ->findAll();
+            ->join('ad_program', 'ad_program.id_program = tr_ajuan.id_program', 'left');
+
+        if ($dari) {
+            $aktivitasQuery->where('ad_disposisi.created_at >=', $dari);
+        }
+        if ($sampai) {
+            $aktivitasQuery->where('ad_disposisi.created_at <=', $sampai . ' 23:59:59');
+        }
+
+        $aktivitasTerbaru = $aktivitasQuery->orderBy('ad_disposisi.created_at', 'DESC')->limit(10)->findAll();
 
         return view('disposisi/dashboard', [
             'title'                 => 'Dashboard Disposisi',
             'activeMenu'            => 'dashboard-disposisi',
+            'dari'                  => $dari,
+            'sampai'                => $sampai,
             'totalDalamAlur'        => $totalDalamAlur,
             'belumDisurvey'         => $belumDisurvey,
             'sudahDisurvey'         => count($nomorPerStage['Surveyor']),
@@ -106,10 +110,46 @@ class DisposisiController extends BaseController
             'menungguBadanPengurus' => $menungguBadanPengurus,
             'selesaiTanpaBadan'     => $selesaiTanpaBadan,
             'selesaiDenganBadan'    => $selesaiDenganBadan,
-            'jumlahPerTahap'        => array_map('count', $nomorPerStage),
+            'jumlahPerTahap'        => $jumlahPerTahap,
             'rekapTahap'            => $rekapTahap,
             'aktivitasTerbaru'      => $aktivitasTerbaru,
         ]);
+    }
+
+    /**
+     * Jumlah diproses + rekap rekomendasi untuk satu tahap, dari entri
+     * ad_disposisi terbaru per ajuan yang created_at-nya jatuh di rentang
+     * dari-sampai (keduanya opsional).
+     */
+    private function rekapTahapTerfilter(string $oleh, ?string $dari, ?string $sampai): array
+    {
+        $query = $this->disposisiModel->where('oleh', $oleh);
+
+        if ($dari) {
+            $query->where('created_at >=', $dari);
+        }
+        if ($sampai) {
+            $query->where('created_at <=', $sampai . ' 23:59:59');
+        }
+
+        $terkiniPerAjuan = [];
+        foreach ($query->orderBy('created_at', 'DESC')->findAll() as $row) {
+            $terkiniPerAjuan[$row['nomor_ajuan']] ??= $row;
+        }
+
+        $disetujui = 0;
+        $ditolak   = 0;
+        $nominal   = 0.0;
+        foreach ($terkiniPerAjuan as $d) {
+            if ((int) $d['rekomendasi'] === 1) {
+                $disetujui++;
+                $nominal += (float) $d['nominal_rekomendasi'];
+            } else {
+                $ditolak++;
+            }
+        }
+
+        return ['jumlah' => count($terkiniPerAjuan), 'disetujui' => $disetujui, 'ditolak' => $ditolak, 'nominal' => $nominal];
     }
 
     /** Worklist for the Surveyor: ajuan still at or before the Survey stage. */

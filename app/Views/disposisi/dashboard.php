@@ -15,6 +15,8 @@
 <?= $this->include('partials/alerts') ?>
 
 <?php
+$dari                   = $dari ?? null;
+$sampai                 = $sampai ?? null;
 $totalDalamAlur        = $totalDalamAlur ?? 0;
 $belumDisurvey         = $belumDisurvey ?? 0;
 $sudahDisurvey          = $sudahDisurvey ?? 0;
@@ -50,7 +52,33 @@ $menungguPerTahap = [
     <h4 class="mb-1">Dashboard Disposisi</h4>
     <p class="text-body-secondary mb-0">Ringkasan progres tinjauan berjenjang ajuan: Surveyor &rarr; Kepala Divisi Program &rarr; Manager &rarr; Badan Pengurus.</p>
   </div>
+  <form method="get" class="d-flex align-items-end gap-2 flex-wrap">
+    <div>
+      <label class="form-label mb-1 small">Dari Tanggal</label>
+      <input type="date" name="dari" class="form-control form-control-sm" value="<?= esc($dari ?? '') ?>" />
+    </div>
+    <div>
+      <label class="form-label mb-1 small">Sampai Tanggal</label>
+      <input type="date" name="sampai" class="form-control form-control-sm" value="<?= esc($sampai ?? '') ?>" />
+    </div>
+    <button type="submit" class="btn btn-sm btn-primary">
+      <i class="icon-base ti tabler-filter me-1"></i>Filter
+    </button>
+    <?php if ($dari || $sampai): ?>
+      <a href="<?= base_url('disposisi/dashboard') ?>" class="btn btn-sm btn-label-secondary">
+        <i class="icon-base ti tabler-refresh me-1"></i>Reset
+      </a>
+    <?php endif; ?>
+  </form>
 </div>
+
+<?php if ($dari || $sampai): ?>
+  <div class="alert alert-secondary py-2 mb-4" role="alert">
+    <i class="icon-base ti tabler-info-circle me-1"></i>
+    Filter tanggal berlaku untuk <strong>jumlah diproses per tahap</strong> dan <strong>aktivitas terbaru</strong> di bawah.
+    Tile ringkasan di atas (Belum Disurvey, Menunggu Badan Pengurus, dst.) selalu menampilkan kondisi saat ini.
+  </div>
+<?php endif; ?>
 
 <div class="row g-4 mb-4">
   <?php
