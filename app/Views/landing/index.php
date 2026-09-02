@@ -463,7 +463,7 @@ $totalProgram  = $totalProgram ?? 0;
       position: relative;
       overflow: hidden;
       border-radius: 28px;
-      background: linear-gradient(135deg, var(--bs-primary), #b9750f);
+      background: linear-gradient(135deg, var(--bs-primary), #af5700);
       padding: 3rem 2.5rem;
       color: #fff;
       margin-bottom: 5rem;

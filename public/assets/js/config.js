@@ -73,7 +73,7 @@ if (typeof TemplateCustomizer !== 'undefined') {
   window.templateCustomizer = new TemplateCustomizer({
     displayCustomizer: true,
     lang: localStorage.getItem('templateCustomizer-' + templateName + '--Lang') || 'en', // Set default language here
-    defaultPrimaryColor: '#F5A623',
+    defaultPrimaryColor: '#ff7f00',
     // defaultSkin: 1,
     // defaultTheme: 'system',
     // defaultSemiDark: true,
