@@ -421,14 +421,22 @@ $penghasilan = $penghasilan ?? [];
     var jenisLembaga = document.getElementById('jenisLembaga');
     var blokIndividu = document.getElementById('blokIndividu');
     var blokLembaga = document.getElementById('blokLembaga');
+    // Form B2's required <select>s live inside #blokIndividu. When it's
+    // hidden for a Lembaga submission, Chromium/Firefox still try (and fail)
+    // to validate them, silently blocking the whole submit with no visible
+    // error since a hidden field can't be focused to show the message. So
+    // the required-ness itself must follow visibility, not just d-none.
+    var requiredDalamIndividu = Array.prototype.slice.call(blokIndividu.querySelectorAll('[required]'));
 
     function toggleBlok() {
       if (jenisIndividu.checked) {
         blokIndividu.classList.remove('d-none');
         blokLembaga.classList.add('d-none');
+        requiredDalamIndividu.forEach(function(el) { el.required = true; });
       } else {
         blokIndividu.classList.add('d-none');
         blokLembaga.classList.remove('d-none');
+        requiredDalamIndividu.forEach(function(el) { el.required = false; });
       }
     }
 
