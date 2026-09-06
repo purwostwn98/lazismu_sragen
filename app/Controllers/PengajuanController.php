@@ -139,7 +139,6 @@ class PengajuanController extends BaseController
             'id_kabupaten'  => ['label' => 'Kabupaten', 'rules' => 'required', 'errors' => ['required' => '{field} wajib dipilih']],
             'id_kecamatan'  => ['label' => 'Kecamatan', 'rules' => 'required', 'errors' => ['required' => '{field} wajib dipilih']],
             'id_kelurahan'  => ['label' => 'Kelurahan', 'rules' => 'required', 'errors' => ['required' => '{field} wajib dipilih']],
-            'alamat_detail' => ['label' => 'Alamat', 'rules' => 'required', 'errors' => ['required' => '{field} tidak boleh kosong']],
             'agama'         => ['label' => 'Agama', 'rules' => 'required', 'errors' => ['required' => '{field} wajib dipilih']],
             'telepon'       => ['label' => 'Telepon', 'rules' => 'required', 'errors' => ['required' => '{field} tidak boleh kosong']],
             'email'         => ['label' => 'Email', 'rules' => 'required|valid_email', 'errors' => ['required' => '{field} tidak boleh kosong', 'valid_email' => '{field} tidak valid']],
@@ -161,7 +160,14 @@ class PengajuanController extends BaseController
             'id_kabupaten'  => $this->request->getPost('id_kabupaten'),
             'id_kecamatan'  => $this->request->getPost('id_kecamatan'),
             'id_kelurahan'  => $this->request->getPost('id_kelurahan'),
-            'alamat_detail' => $this->request->getPost('alamat_detail'),
+            'alamat_detail' => susun_alamat_rt_rw(
+                $this->request->getPost('dusun'),
+                $this->request->getPost('rt'),
+                $this->request->getPost('rw')
+            ),
+            'dusun'         => $this->request->getPost('dusun') ?: null,
+            'rt'            => $this->request->getPost('rt') ?: null,
+            'rw'            => $this->request->getPost('rw') ?: null,
             'agama'         => $this->request->getPost('agama'),
             'telepon'       => $this->request->getPost('telepon'),
             'email'         => $this->request->getPost('email'),

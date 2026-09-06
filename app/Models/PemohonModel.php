@@ -11,7 +11,7 @@ class PemohonModel extends Model
     protected $allowedFields = [
         'nik', 'nama_pemohon', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir',
         'id_provinsi', 'id_kabupaten', 'id_kecamatan', 'id_kelurahan',
-        'alamat_detail', 'agama', 'telepon', 'email',
+        'alamat_detail', 'dusun', 'rt', 'rw', 'agama', 'telepon', 'email',
     ];
     protected $useTimestamps = true;
     protected $createdField  = 'pemohon_created_at';

@@ -119,93 +119,112 @@ if (!function_exists('wilayahSelects')) {
               </form>
             </td>
           </tr>
-
-          <!-- Edit modal -->
-          <div class="modal fade modal-pemohon" id="modalEditPemohon<?= $i ?>" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-              <div class="modal-content">
-                <form action="<?= base_url('pemohon/update/' . $p['nik']) ?>" method="post">
-                  <?= csrf_field() ?>
-                  <div class="modal-header">
-                    <h5 class="modal-title">Edit Pemohon</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                    <div class="row">
-                      <div class="col-md-6 mb-3">
-                        <label class="form-label">NIK</label>
-                        <input type="text" class="form-control" value="<?= esc($p['nik']) ?>" disabled />
-                      </div>
-                      <div class="col-md-6 mb-3">
-                        <label class="form-label">Nama</label>
-                        <input type="text" name="nama_pemohon" class="form-control" value="<?= esc($p['nama_pemohon']) ?>" required />
-                      </div>
-                      <div class="col-md-4 mb-3">
-                        <label class="form-label">Jenis Kelamin</label>
-                        <select name="jenis_kelamin" class="form-select" required>
-                          <option value="Laki-laki" <?= $p['jenis_kelamin'] === 'Laki-laki' ? 'selected' : '' ?>>Laki-laki</option>
-                          <option value="Perempuan" <?= $p['jenis_kelamin'] === 'Perempuan' ? 'selected' : '' ?>>Perempuan</option>
-                        </select>
-                      </div>
-                      <div class="col-md-4 mb-3">
-                        <label class="form-label">Tempat Lahir</label>
-                        <input type="text" name="tempat_lahir" class="form-control" value="<?= esc($p['tempat_lahir']) ?>" required />
-                      </div>
-                      <div class="col-md-4 mb-3">
-                        <label class="form-label">Tanggal Lahir</label>
-                        <input type="date" name="tanggal_lahir" class="form-control" value="<?= esc($p['tanggal_lahir']) ?>" required />
-                      </div>
-                    </div>
-
-                    <?php
-                    wilayahSelects($provinsi, [
-                      'provinsi'  => $p['id_provinsi'],
-                      'kabupaten' => $p['id_kabupaten'],
-                      'kecamatan' => $p['id_kecamatan'],
-                      'kelurahan' => $p['id_kelurahan'],
-                    ], [
-                      'kabupaten' => $p['nama_kabupaten'] ?? '',
-                      'kecamatan' => $p['nama_kecamatan'] ?? '',
-                      'kelurahan' => $p['nama_kelurahan'] ?? '',
-                    ]);
-                    ?>
-
-                    <div class="mb-3">
-                      <label class="form-label">Alamat Detail</label>
-                      <textarea name="alamat_detail" class="form-control" rows="2" required><?= esc($p['alamat_detail']) ?></textarea>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-4 mb-3">
-                        <label class="form-label">Agama</label>
-                        <select name="agama" class="form-select" required>
-                          <?php foreach (['Islam', 'Protestan', 'Katolik', 'Hindhu', 'Budha'] as $ag): ?>
-                            <option value="<?= $ag ?>" <?= $p['agama'] === $ag ? 'selected' : '' ?>><?= $ag ?></option>
-                          <?php endforeach; ?>
-                        </select>
-                      </div>
-                      <div class="col-md-4 mb-3">
-                        <label class="form-label">Telepon</label>
-                        <input type="text" name="telepon" class="form-control" value="<?= esc($p['telepon']) ?>" required />
-                      </div>
-                      <div class="col-md-4 mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" value="<?= esc($p['email']) ?>" required />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
         <?php endforeach; ?>
       </tbody>
     </table>
   </div>
 </div>
+
+<!--
+  Edit modals are rendered here, OUTSIDE the <table>, one loop per pemohon.
+  They must NOT live inside <tbody> (as a sibling of <tr>): browsers only
+  allow <tr> as a direct child of <tbody>, so a <div> placed there gets
+  "foster parented" out of the table at parse time, detaching it from its
+  <form> and silently breaking submission (see the identical fix in
+  program/index.php's Tambah Syarat bug).
+-->
+<?php foreach ($pemohon as $i => $p): ?>
+  <div class="modal fade modal-pemohon" id="modalEditPemohon<?= $i ?>" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <form action="<?= base_url('pemohon/update/' . $p['nik']) ?>" method="post">
+          <?= csrf_field() ?>
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Pemohon</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">NIK</label>
+                <input type="text" class="form-control" value="<?= esc($p['nik']) ?>" disabled />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Nama</label>
+                <input type="text" name="nama_pemohon" class="form-control" value="<?= esc($p['nama_pemohon']) ?>" required />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Jenis Kelamin</label>
+                <select name="jenis_kelamin" class="form-select" required>
+                  <option value="Laki-laki" <?= $p['jenis_kelamin'] === 'Laki-laki' ? 'selected' : '' ?>>Laki-laki</option>
+                  <option value="Perempuan" <?= $p['jenis_kelamin'] === 'Perempuan' ? 'selected' : '' ?>>Perempuan</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Tempat Lahir</label>
+                <input type="text" name="tempat_lahir" class="form-control" value="<?= esc($p['tempat_lahir']) ?>" required />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Tanggal Lahir</label>
+                <input type="date" name="tanggal_lahir" class="form-control" value="<?= esc($p['tanggal_lahir']) ?>" required />
+              </div>
+            </div>
+
+            <?php
+            wilayahSelects($provinsi, [
+              'provinsi'  => $p['id_provinsi'],
+              'kabupaten' => $p['id_kabupaten'],
+              'kecamatan' => $p['id_kecamatan'],
+              'kelurahan' => $p['id_kelurahan'],
+            ], [
+              'kabupaten' => $p['nama_kabupaten'] ?? '',
+              'kecamatan' => $p['nama_kecamatan'] ?? '',
+              'kelurahan' => $p['nama_kelurahan'] ?? '',
+            ]);
+            ?>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Dusun / Nama Jalan</label>
+                <input type="text" name="dusun" class="form-control" value="<?= esc($p['dusun'] ?? '') ?>" />
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label">RT</label>
+                <input type="number" name="rt" class="form-control" min="0" value="<?= esc($p['rt'] ?? '') ?>" />
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label">RW</label>
+                <input type="number" name="rw" class="form-control" min="0" value="<?= esc($p['rw'] ?? '') ?>" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Agama</label>
+                <select name="agama" class="form-select" required>
+                  <?php foreach (['Islam', 'Protestan', 'Katolik', 'Hindhu', 'Budha'] as $ag): ?>
+                    <option value="<?= $ag ?>" <?= $p['agama'] === $ag ? 'selected' : '' ?>><?= $ag ?></option>
+                  <?php endforeach; ?>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Telepon</label>
+                <input type="text" name="telepon" class="form-control" value="<?= esc($p['telepon']) ?>" required />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" value="<?= esc($p['email']) ?>" required />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" class="btn btn-primary">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+<?php endforeach; ?>
 
 <!-- Tambah modal -->
 <div class="modal fade modal-pemohon" id="modalTambahPemohon" tabindex="-1" aria-hidden="true">
@@ -246,9 +265,19 @@ if (!function_exists('wilayahSelects')) {
 
           <?php wilayahSelects($provinsi); ?>
 
-          <div class="mb-3">
-            <label class="form-label">Alamat Detail</label>
-            <textarea name="alamat_detail" class="form-control" rows="2" required></textarea>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Dusun / Nama Jalan</label>
+              <input type="text" name="dusun" class="form-control" />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label">RT</label>
+              <input type="number" name="rt" class="form-control" min="0" />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label">RW</label>
+              <input type="number" name="rw" class="form-control" min="0" />
+            </div>
           </div>
           <div class="row">
             <div class="col-md-4 mb-3">

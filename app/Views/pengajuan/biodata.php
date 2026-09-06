@@ -72,9 +72,19 @@
             </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">Alamat Detail</label>
-            <textarea name="alamat_detail" class="form-control" rows="2" required></textarea>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Dusun / Nama Jalan</label>
+              <input type="text" name="dusun" class="form-control" />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label">RT</label>
+              <input type="number" name="rt" class="form-control" min="0" />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label">RW</label>
+              <input type="number" name="rw" class="form-control" min="0" />
+            </div>
           </div>
 
           <div class="row">
