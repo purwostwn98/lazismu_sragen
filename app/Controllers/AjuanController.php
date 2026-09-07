@@ -1055,6 +1055,32 @@ class AjuanController extends BaseController
         return redirect()->to(base_url('ajuan/' . $nomorAjuan));
     }
 
+    /** Streams the ajuan's uploaded file_proposal inline so admins can view it in a new tab. */
+    public function dokumenAjuan(string $nomorAjuan, string $jenis)
+    {
+        if (!in_array($jenis, ['proposal'], true)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $ajuan    = $this->ajuanModel->where('nomor_ajuan', $nomorAjuan)->first();
+        $filename = $ajuan['file_' . $jenis] ?? null;
+
+        if (!$filename) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $path = WRITEPATH . 'uploads/ajuan/' . $jenis . '/' . $filename;
+
+        if (!is_file($path)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        return $this->response
+            ->setHeader('Content-Type', mime_content_type($path))
+            ->setHeader('Content-Disposition', 'inline; filename="' . $filename . '"')
+            ->setBody(file_get_contents($path));
+    }
+
     /** Streams the mustahik's foto_ktp/foto_kk inline so admins can view it in a new tab. */
     public function dokumenMustahik(string $nomorAjuan, string $jenis)
     {
