@@ -130,9 +130,19 @@ $statusColor = ajuan_status_color(isset($ajuan['status_ajuan']) ? (int) $ajuan['
         <span class="ajuan-field-label">Kegiatan</span>
         <span class="ajuan-field-value"><?= esc($ajuan['nama_program'] ?? '-') ?></span>
       </div>
-      <div class="col-12">
+      <div class="col-12 mb-3">
         <span class="ajuan-field-label">Deskripsi</span>
         <span class="ajuan-field-value"><?= nl2br(esc($ajuan['deskripsi_ajuan'])) ?></span>
+      </div>
+      <div class="col-12">
+        <span class="ajuan-field-label">Proposal</span>
+        <?php if (!empty($ajuan['file_proposal'])): ?>
+          <a href="<?= base_url('ajuan/' . $ajuan['nomor_ajuan'] . '/dokumen/proposal') ?>" target="_blank" class="btn btn-sm btn-label-secondary">
+            <i class="icon-base ti tabler-file-text me-1"></i>Lihat Proposal
+          </a>
+        <?php else: ?>
+          <span class="ajuan-field-value text-body-secondary d-block">Belum diunggah</span>
+        <?php endif; ?>
       </div>
     </div>
   </div>
