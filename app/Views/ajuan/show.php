@@ -284,9 +284,17 @@ $statusLabels = array_column($statusList, 'keterangan_status', 'id_status');
             <div class="collapse" id="detailB2">
               <div class="row mb-3">
                 <?php foreach ($labelPertanyaanB2 as $key => $label): ?>
+                  <?php
+                  // "<key>_opsi" carries the exact answer label the applicant
+                  // picked (posted alongside the score at submission time -
+                  // see FormB2Reader). Rows saved before that column existed
+                  // fall back to showing just the score.
+                  $jawaban = $b2[$key . '_opsi'] ?? null;
+                  $jawaban ??= 'Skor ' . (int) ($b2[$key] ?? 0);
+                  ?>
                   <div class="col-md-6 mb-2">
                     <span class="ajuan-field-label mb-0"><?= esc($label) ?></span>
-                    <span class="ajuan-field-value">Skor <?= (int) ($b2[$key] ?? 0) ?></span>
+                    <span class="ajuan-field-value"><?= esc($jawaban) ?></span>
                   </div>
                 <?php endforeach; ?>
               </div>

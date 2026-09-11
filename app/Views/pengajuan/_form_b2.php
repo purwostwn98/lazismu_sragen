@@ -26,83 +26,83 @@
         <label class="form-label">1. Jumlah Tanggungan Keluarga</label>
         <select name="b2_q1_tanggungan_keluarga" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">&gt; 7 orang</option>
-          <option value="4">5 - 6 orang</option>
-          <option value="3">3 - 4 orang</option>
-          <option value="2">1 - 2 orang</option>
-          <option value="1">Tidak ada</option>
+          <option value="5|&gt; 7 orang">&gt; 7 orang</option>
+          <option value="4|5 - 6 orang">5 - 6 orang</option>
+          <option value="3|3 - 4 orang">3 - 4 orang</option>
+          <option value="2|1 - 2 orang">1 - 2 orang</option>
+          <option value="1|Tidak ada">Tidak ada</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">2. Jumlah Anak yang Masih Sekolah</label>
         <select name="b2_q2_anak_sekolah" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">7 anak</option>
-          <option value="4">5 - 6 anak</option>
-          <option value="3">3 - 4 anak</option>
-          <option value="2">1 - 2 anak</option>
-          <option value="1">Tidak ada</option>
+          <option value="5|7 anak">7 anak</option>
+          <option value="4|5 - 6 anak">5 - 6 anak</option>
+          <option value="3|3 - 4 anak">3 - 4 anak</option>
+          <option value="2|1 - 2 anak">1 - 2 anak</option>
+          <option value="1|Tidak ada">Tidak ada</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">3. Jumlah Anak yang Putus Sekolah</label>
         <select name="b2_q3_anak_putus_sekolah" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Ada</option>
-          <option value="1">Tidak ada</option>
+          <option value="5|Ada">Ada</option>
+          <option value="1|Tidak ada">Tidak ada</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">4. Jumlah Pengeluaran Bulanan</label>
         <select name="b2_q4_pengeluaran_bulanan" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">&gt; Rp 3 juta</option>
-          <option value="4">Rp 2 - 3 juta</option>
-          <option value="3">Rp 1 - 2 juta</option>
-          <option value="2">Rp 500rb - 1 juta</option>
-          <option value="1">Rp 250rb - 500rb</option>
+          <option value="5|&gt; Rp 3 juta">&gt; Rp 3 juta</option>
+          <option value="4|Rp 2 - 3 juta">Rp 2 - 3 juta</option>
+          <option value="3|Rp 1 - 2 juta">Rp 1 - 2 juta</option>
+          <option value="2|Rp 500rb - 1 juta">Rp 500rb - 1 juta</option>
+          <option value="1|Rp 250rb - 500rb">Rp 250rb - 500rb</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">5. Biaya Obat Rutin Anggota Keluarga yang Sakit</label>
         <select name="b2_q5_obat_rutin" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">&gt; Rp 1 juta</option>
-          <option value="4">Rp 500rb - 1 juta</option>
-          <option value="3">Rp 300rb - 500rb</option>
-          <option value="2">&lt; Rp 200rb</option>
-          <option value="1">Tidak ada</option>
+          <option value="5|&gt; Rp 1 juta">&gt; Rp 1 juta</option>
+          <option value="4|Rp 500rb - 1 juta">Rp 500rb - 1 juta</option>
+          <option value="3|Rp 300rb - 500rb">Rp 300rb - 500rb</option>
+          <option value="2|&lt; Rp 200rb">&lt; Rp 200rb</option>
+          <option value="1|Tidak ada">Tidak ada</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">6. Biaya Pendidikan yang Ditanggung</label>
         <select name="b2_q6_biaya_pendidikan" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">&gt; Rp 2 juta</option>
-          <option value="4">Rp 1,5 - 2 juta</option>
-          <option value="3">Rp 1 - 1,5 juta</option>
-          <option value="2">Rp 500rb - 1 juta</option>
-          <option value="1">Rp 250rb - 500rb</option>
+          <option value="5|&gt; Rp 2 juta">&gt; Rp 2 juta</option>
+          <option value="4|Rp 1,5 - 2 juta">Rp 1,5 - 2 juta</option>
+          <option value="3|Rp 1 - 1,5 juta">Rp 1 - 1,5 juta</option>
+          <option value="2|Rp 500rb - 1 juta">Rp 500rb - 1 juta</option>
+          <option value="1|Rp 250rb - 500rb">Rp 250rb - 500rb</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">7. Hutang Berjalan</label>
         <select name="b2_q7_hutang_berjalan" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Memiliki hutang</option>
-          <option value="1">Tidak memiliki hutang</option>
+          <option value="5|Memiliki hutang">Memiliki hutang</option>
+          <option value="1|Tidak memiliki hutang">Tidak memiliki hutang</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">8. Keperluan Hutang</label>
         <select name="b2_q8_keperluan_hutang" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Kebutuhan hidup</option>
-          <option value="4">Biaya kesehatan</option>
-          <option value="3">Biaya pendidikan</option>
-          <option value="2">Kebutuhan sosial</option>
-          <option value="1">Kebutuhan sekunder</option>
-          <option value="0">Tidak memiliki hutang</option>
+          <option value="5|Kebutuhan hidup">Kebutuhan hidup</option>
+          <option value="4|Biaya kesehatan">Biaya kesehatan</option>
+          <option value="3|Biaya pendidikan">Biaya pendidikan</option>
+          <option value="2|Kebutuhan sosial">Kebutuhan sosial</option>
+          <option value="1|Kebutuhan sekunder">Kebutuhan sekunder</option>
+          <option value="0|Tidak memiliki hutang">Tidak memiliki hutang</option>
         </select>
       </div>
     </div>
@@ -113,52 +113,52 @@
         <label class="form-label">9. Pekerjaan Kepala Keluarga</label>
         <select name="b2_q9_pekerjaan_kepala_keluarga" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Menganggur</option>
-          <option value="4">Serabutan</option>
-          <option value="3">Karyawan</option>
-          <option value="2">Dagang</option>
-          <option value="1">PNS</option>
+          <option value="5|Menganggur">Menganggur</option>
+          <option value="4|Serabutan">Serabutan</option>
+          <option value="3|Karyawan">Karyawan</option>
+          <option value="2|Dagang">Dagang</option>
+          <option value="1|PNS">PNS</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">10. Merokok</label>
         <select name="b2_q10_merokok" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Tidak merokok</option>
-          <option value="1">Merokok</option>
+          <option value="5|Tidak merokok">Tidak merokok</option>
+          <option value="1|Merokok">Merokok</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">11. Pekerjaan Suami/Istri</label>
         <select name="b2_q11_pekerjaan_pasangan" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Menganggur</option>
-          <option value="4">Serabutan</option>
-          <option value="3">Karyawan</option>
-          <option value="2">Dagang</option>
-          <option value="1">PNS</option>
+          <option value="5|Menganggur">Menganggur</option>
+          <option value="4|Serabutan">Serabutan</option>
+          <option value="3|Karyawan">Karyawan</option>
+          <option value="2|Dagang">Dagang</option>
+          <option value="1|PNS">PNS</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">12. Usia Mustahik</label>
         <select name="b2_q12_usia_mustahik" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">&gt; 50 tahun</option>
-          <option value="4">40 - 49 tahun</option>
-          <option value="3">30 - 39 tahun</option>
-          <option value="2">20 - 29 tahun</option>
-          <option value="1">5 - 19 tahun</option>
+          <option value="5|&gt; 50 tahun">&gt; 50 tahun</option>
+          <option value="4|40 - 49 tahun">40 - 49 tahun</option>
+          <option value="3|30 - 39 tahun">30 - 39 tahun</option>
+          <option value="2|20 - 29 tahun">20 - 29 tahun</option>
+          <option value="1|5 - 19 tahun">5 - 19 tahun</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">13. Kondisi Kesehatan Kepala Keluarga</label>
         <select name="b2_q13_kondisi_kepala_keluarga" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Sakit menahun</option>
-          <option value="4">Sakit-sakitan</option>
-          <option value="3">Manula</option>
-          <option value="2">Sehat &amp; tidak bekerja</option>
-          <option value="1">Sehat &amp; bekerja</option>
+          <option value="5|Sakit menahun">Sakit menahun</option>
+          <option value="4|Sakit-sakitan">Sakit-sakitan</option>
+          <option value="3|Manula">Manula</option>
+          <option value="2|Sehat &amp; tidak bekerja">Sehat &amp; tidak bekerja</option>
+          <option value="1|Sehat &amp; bekerja">Sehat &amp; bekerja</option>
         </select>
       </div>
     </div>
@@ -169,101 +169,101 @@
         <label class="form-label">14. Kepemilikan Rumah</label>
         <select name="b2_q14_kepemilikan_rumah" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Menumpang</option>
-          <option value="4">Kontrak</option>
-          <option value="3">Rumah keluarga</option>
-          <option value="1">Milik sendiri</option>
+          <option value="5|Menumpang">Menumpang</option>
+          <option value="4|Kontrak">Kontrak</option>
+          <option value="3|Rumah keluarga">Rumah keluarga</option>
+          <option value="1|Milik sendiri">Milik sendiri</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">15. Luas Rumah</label>
         <select name="b2_q15_luas_rumah" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Kecil (&lt; 3x7 m)</option>
-          <option value="4">3x7 m</option>
-          <option value="3">6x6 m</option>
-          <option value="1">Luas (&gt; 6x6 m)</option>
+          <option value="5|Kecil (&lt; 3x7 m)">Kecil (&lt; 3x7 m)</option>
+          <option value="4|3x7 m">3x7 m</option>
+          <option value="3|6x6 m">6x6 m</option>
+          <option value="1|Luas (&gt; 6x6 m)">Luas (&gt; 6x6 m)</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">16. Dinding Rumah</label>
         <select name="b2_q16_dinding_rumah" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Bambu</option>
-          <option value="4">Seng</option>
-          <option value="3">Kalsibot</option>
-          <option value="2">Semi tembok</option>
-          <option value="1">Batu bata</option>
+          <option value="5|Bambu">Bambu</option>
+          <option value="4|Seng">Seng</option>
+          <option value="3|Kalsibot">Kalsibot</option>
+          <option value="2|Semi tembok">Semi tembok</option>
+          <option value="1|Batu bata">Batu bata</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">17. Lantai</label>
         <select name="b2_q17_lantai" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Tanah</option>
-          <option value="4">Panggung</option>
-          <option value="3">Semen</option>
-          <option value="1">Keramik</option>
+          <option value="5|Tanah">Tanah</option>
+          <option value="4|Panggung">Panggung</option>
+          <option value="3|Semen">Semen</option>
+          <option value="1|Keramik">Keramik</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">18. Atap</label>
         <select name="b2_q18_atap" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Rumbia</option>
-          <option value="4">Seng</option>
-          <option value="3">Asbes</option>
-          <option value="1">Genteng</option>
+          <option value="5|Rumbia">Rumbia</option>
+          <option value="4|Seng">Seng</option>
+          <option value="3|Asbes">Asbes</option>
+          <option value="1|Genteng">Genteng</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">19. Sumber Air Minum</label>
         <select name="b2_q19_sumber_air_minum" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Tidak ada</option>
-          <option value="4">Bersama/umum</option>
-          <option value="3">Sumur gali</option>
-          <option value="2">PDAM</option>
-          <option value="1">Sumur bor</option>
+          <option value="5|Tidak ada">Tidak ada</option>
+          <option value="4|Bersama/umum">Bersama/umum</option>
+          <option value="3|Sumur gali">Sumur gali</option>
+          <option value="2|PDAM">PDAM</option>
+          <option value="1|Sumur bor">Sumur bor</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">20. MCK</label>
         <select name="b2_q20_mck" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Tidak ada</option>
-          <option value="4">Bersama/umum</option>
-          <option value="1">Sendiri</option>
+          <option value="5|Tidak ada">Tidak ada</option>
+          <option value="4|Bersama/umum">Bersama/umum</option>
+          <option value="1|Sendiri">Sendiri</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">21. Penerangan</label>
         <select name="b2_q21_penerangan" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Sentir/lilin</option>
-          <option value="3">Saluran (nyantol)</option>
-          <option value="2">PLN</option>
-          <option value="1">Genset</option>
+          <option value="5|Sentir/lilin">Sentir/lilin</option>
+          <option value="3|Saluran (nyantol)">Saluran (nyantol)</option>
+          <option value="2|PLN">PLN</option>
+          <option value="1|Genset">Genset</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">22. Daya Terpasang</label>
         <select name="b2_q22_daya_terpasang" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Tidak ada</option>
-          <option value="3">450 kwh</option>
-          <option value="2">900 kwh</option>
-          <option value="1">1300 kwh</option>
+          <option value="5|Tidak ada">Tidak ada</option>
+          <option value="3|450 kwh">450 kwh</option>
+          <option value="2|900 kwh">900 kwh</option>
+          <option value="1|1300 kwh">1300 kwh</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">23. Kelayakan Tidur</label>
         <select name="b2_q23_kelayakan_tidur" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Tikar/karpet</option>
-          <option value="3">Kasur kapuk</option>
-          <option value="2">Kasur busa</option>
-          <option value="1">Spring bed</option>
+          <option value="5|Tikar/karpet">Tikar/karpet</option>
+          <option value="3|Kasur kapuk">Kasur kapuk</option>
+          <option value="2|Kasur busa">Kasur busa</option>
+          <option value="1|Spring bed">Spring bed</option>
         </select>
       </div>
     </div>
@@ -274,47 +274,47 @@
         <label class="form-label">24. Jumlah Makan Per Hari</label>
         <select name="b2_q24_makan_perhari" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">1 kali</option>
-          <option value="3">2 kali</option>
-          <option value="1">3 kali</option>
+          <option value="5|1 kali">1 kali</option>
+          <option value="3|2 kali">2 kali</option>
+          <option value="1|3 kali">3 kali</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">25. Konsumsi Ayam</label>
         <select name="b2_q25_konsumsi_ayam" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Tidak pernah</option>
-          <option value="4">1 kali/pekan</option>
-          <option value="2">2 kali/pekan</option>
+          <option value="5|Tidak pernah">Tidak pernah</option>
+          <option value="4|1 kali/pekan">1 kali/pekan</option>
+          <option value="2|2 kali/pekan">2 kali/pekan</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">26. Konsumsi Daging</label>
         <select name="b2_q26_konsumsi_daging" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Tidak pernah</option>
-          <option value="4">1 kali/pekan</option>
-          <option value="1">2 kali/pekan</option>
+          <option value="5|Tidak pernah">Tidak pernah</option>
+          <option value="4|1 kali/pekan">1 kali/pekan</option>
+          <option value="1|2 kali/pekan">2 kali/pekan</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">27. Konsumsi Susu</label>
         <select name="b2_q27_konsumsi_susu" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Tidak pernah</option>
-          <option value="4">1 kali/pekan</option>
-          <option value="2">2 kali/pekan</option>
+          <option value="5|Tidak pernah">Tidak pernah</option>
+          <option value="4|1 kali/pekan">1 kali/pekan</option>
+          <option value="2|2 kali/pekan">2 kali/pekan</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">28. Belanja Harian</label>
         <select name="b2_q28_belanja_harian" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Rp 1rb - 15rb</option>
-          <option value="4">Rp 15rb - 25rb</option>
-          <option value="3">Rp 25rb - 50rb</option>
-          <option value="2">Rp 50rb - 100rb</option>
-          <option value="1">&gt; Rp 100rb</option>
+          <option value="5|Rp 1rb - 15rb">Rp 1rb - 15rb</option>
+          <option value="4|Rp 15rb - 25rb">Rp 15rb - 25rb</option>
+          <option value="3|Rp 25rb - 50rb">Rp 25rb - 50rb</option>
+          <option value="2|Rp 50rb - 100rb">Rp 50rb - 100rb</option>
+          <option value="1|&gt; Rp 100rb">&gt; Rp 100rb</option>
         </select>
       </div>
     </div>
@@ -325,29 +325,29 @@
         <label class="form-label">29. Aset Tidak Bergerak (Sawah/Pekarangan)</label>
         <select name="b2_q29_aset_tidak_bergerak" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Tidak punya</option>
-          <option value="4">&le; 500 m&sup2;</option>
-          <option value="2">500 - 750 m&sup2;</option>
+          <option value="5|Tidak punya">Tidak punya</option>
+          <option value="4|&le; 500 m&sup2;">&le; 500 m&sup2;</option>
+          <option value="2|500 - 750 m&sup2;">500 - 750 m&sup2;</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">30. Barang Berharga/Benda Antik</label>
         <select name="b2_q30_barang_berharga" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Tidak punya</option>
-          <option value="4">&lt; Rp 500rb</option>
-          <option value="2">Rp 500rb - 1,5 juta</option>
-          <option value="1">&gt; Rp 1,5 juta</option>
+          <option value="5|Tidak punya">Tidak punya</option>
+          <option value="4|&lt; Rp 500rb">&lt; Rp 500rb</option>
+          <option value="2|Rp 500rb - 1,5 juta">Rp 500rb - 1,5 juta</option>
+          <option value="1|&gt; Rp 1,5 juta">&gt; Rp 1,5 juta</option>
         </select>
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">31. Aset Bergerak</label>
         <select name="b2_q31_aset_bergerak" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Tidak punya</option>
-          <option value="4">Sepeda</option>
-          <option value="2">Motor</option>
-          <option value="1">Mobil</option>
+          <option value="5|Tidak punya">Tidak punya</option>
+          <option value="4|Sepeda">Sepeda</option>
+          <option value="2|Motor">Motor</option>
+          <option value="1|Mobil">Mobil</option>
         </select>
       </div>
     </div>
@@ -410,12 +410,12 @@
         <label class="form-label">32. Sedang Menerima Bantuan Lain</label>
         <select name="b2_q32_bantuan_lembaga_lain" class="form-select" required>
           <option value="">-- Pilih --</option>
-          <option value="5">Tidak menerima bantuan apapun</option>
-          <option value="5">BPJS</option>
-          <option value="4">KIS/KIP</option>
-          <option value="1">SARASWATI</option>
-          <option value="5">PKH</option>
-          <option value="4">BPNT/RASKIN</option>
+          <option value="5|Tidak menerima bantuan apapun">Tidak menerima bantuan apapun</option>
+          <option value="5|BPJS">BPJS</option>
+          <option value="4|KIS/KIP">KIS/KIP</option>
+          <option value="1|SARASWATI">SARASWATI</option>
+          <option value="5|PKH">PKH</option>
+          <option value="4|BPNT/RASKIN">BPNT/RASKIN</option>
         </select>
         <small class="text-body-secondary">Jika menerima lebih dari satu, pilih yang paling utama.</small>
       </div>

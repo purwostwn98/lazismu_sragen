@@ -10,14 +10,6 @@ class FormB2Model extends Model
     protected $primaryKey = 'id';
     protected $allowedFields = [
         'nomor_ajuan',
-        'q1_tanggungan_keluarga', 'q2_anak_sekolah', 'q3_anak_putus_sekolah', 'q4_pengeluaran_bulanan',
-        'q5_obat_rutin', 'q6_biaya_pendidikan', 'q7_hutang_berjalan', 'q8_keperluan_hutang',
-        'q9_pekerjaan_kepala_keluarga', 'q10_merokok', 'q11_pekerjaan_pasangan', 'q12_usia_mustahik',
-        'q13_kondisi_kepala_keluarga', 'q14_kepemilikan_rumah', 'q15_luas_rumah', 'q16_dinding_rumah',
-        'q17_lantai', 'q18_atap', 'q19_sumber_air_minum', 'q20_mck', 'q21_penerangan', 'q22_daya_terpasang',
-        'q23_kelayakan_tidur', 'q24_makan_perhari', 'q25_konsumsi_ayam', 'q26_konsumsi_daging',
-        'q27_konsumsi_susu', 'q28_belanja_harian', 'q29_aset_tidak_bergerak', 'q30_barang_berharga',
-        'q31_aset_bergerak', 'q32_bantuan_lembaga_lain',
         'elektronik_tv_jumlah', 'elektronik_tv_status',
         'elektronik_hp_jumlah', 'elektronik_hp_status',
         'elektronik_kulkas_jumlah', 'elektronik_kulkas_status',
@@ -44,6 +36,23 @@ class FormB2Model extends Model
         'q27_konsumsi_susu', 'q28_belanja_harian', 'q29_aset_tidak_bergerak', 'q30_barang_berharga',
         'q31_aset_bergerak', 'q32_bantuan_lembaga_lain',
     ];
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        // Every PERTANYAAN_SKOR question (the score itself) plus its
+        // companion "<key>_opsi" column (added by
+        // 2026-09-13-000001_AddOpsiToFormB2, storing the exact answer label
+        // picked - see FormB2Reader, which posts "score|label" per
+        // question). Declared here instead of spelled out in $allowedFields
+        // above so the two lists can't drift apart as questions are added/
+        // renamed.
+        foreach (self::PERTANYAAN_SKOR as $key) {
+            $this->allowedFields[] = $key;
+            $this->allowedFields[] = $key . '_opsi';
+        }
+    }
 
     /**
      * Sums the 32 question scores and classifies the result into the same

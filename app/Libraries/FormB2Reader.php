@@ -20,8 +20,17 @@ class FormB2Reader
     {
         $data = [];
 
+        // Every question posts "score|label" (see _form_b2.php's <option
+        // value="...">) so both the number that feeds total_skor and the
+        // exact answer text picked (for ajuan/show.php's display, where a
+        // raw score can't always be traced back to one specific answer -
+        // several of q32's 6 answers intentionally share a score) are
+        // captured from the single source of truth: the option itself.
         foreach (FormB2Model::PERTANYAAN_SKOR as $key) {
-            $data[$key] = (int) $request->getPost('b2_' . $key);
+            [$skor, $label] = array_pad(explode('|', (string) $request->getPost('b2_' . $key), 2), 2, null);
+
+            $data[$key]            = (int) $skor;
+            $data[$key . '_opsi']  = $label;
         }
 
         foreach (self::BARANG_ELEKTRONIK as $item) {
