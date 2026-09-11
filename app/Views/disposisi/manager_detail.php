@@ -339,9 +339,25 @@ $statusColor = ajuan_status_color(isset($ajuan['status_ajuan']) ? (int) $ajuan['
     </div>
     <div class="card-body">
       <div class="row">
-        <div class="col-md-4 mb-2"><span class="ajuan-field-label">Nama Lembaga</span><span class="ajuan-field-value"><?= esc($lembaga['nama_lembaga']) ?></span></div>
-        <div class="col-md-4 mb-2"><span class="ajuan-field-label">Nomor Lembaga</span><span class="ajuan-field-value"><?= esc($lembaga['nomor_lembaga']) ?></span></div>
-        <div class="col-md-4 mb-2"><span class="ajuan-field-label">Alamat</span><span class="ajuan-field-value"><?= esc($lembaga['alamat_lembaga']) ?></span></div>
+        <div class="col-md-6 mb-3"><span class="ajuan-field-label">Nama Lembaga</span><span class="ajuan-field-value"><?= esc($lembaga['nama_lembaga']) ?></span></div>
+        <div class="col-md-6 mb-3"><span class="ajuan-field-label">Nomor Legalitas (Akta/Izin Operasional/NIB)</span><span class="ajuan-field-value"><?= esc($lembaga['nomor_lembaga']) ?></span></div>
+        <div class="col-md-6 mb-3"><span class="ajuan-field-label">Bidang</span><span class="ajuan-field-value"><?= esc($lembaga['bidang'] ?? '-') ?></span></div>
+        <div class="col-md-6 mb-3">
+          <span class="ajuan-field-label">Alamat</span>
+          <span class="ajuan-field-value">
+            <?= esc($lembaga['alamat_lembaga']) ?>,
+            <?= esc($lembaga['nama_kelurahan'] ?? '-') ?>, <?= esc($lembaga['nama_kecamatan'] ?? '-') ?>,
+            <?= esc($lembaga['nama_kabupaten'] ?? '-') ?>, <?= esc($lembaga['nama_provinsi'] ?? '-') ?>
+          </span>
+        </div>
+        <div class="col-md-6 mb-3"><span class="ajuan-field-label">Telepon</span><span class="ajuan-field-value"><?= esc($lembaga['nomor_telepon'] ?? '-') ?></span></div>
+        <div class="col-md-6 mb-3"><span class="ajuan-field-label">Email</span><span class="ajuan-field-value"><?= esc($lembaga['email'] ?? '-') ?></span></div>
+        <div class="col-md-6 mb-3"><span class="ajuan-field-label">Website</span><span class="ajuan-field-value"><?= esc($lembaga['website'] ?: '-') ?></span></div>
+        <div class="col-md-6 mb-3"><span class="ajuan-field-label">Sumber Pendanaan</span><span class="ajuan-field-value"><?= esc($lembaga['sumber_pendanaan'] ?: '-') ?></span></div>
+        <div class="col-md-6 mb-3"><span class="ajuan-field-label">Nomor Rekening</span><span class="ajuan-field-value"><?= esc($lembaga['nomor_rekening'] ?: '-') ?></span></div>
+        <div class="col-md-6 mb-3"><span class="ajuan-field-label">Nama Pemilik Rekening</span><span class="ajuan-field-value"><?= esc($lembaga['nama_pemilik_rekening'] ?: '-') ?></span></div>
+        <div class="col-md-6 mb-3"><span class="ajuan-field-label">Nama Penanggung Jawab</span><span class="ajuan-field-value"><?= esc($lembaga['nama_pj'] ?? '-') ?></span></div>
+        <div class="col-md-6 mb-3"><span class="ajuan-field-label">Jabatan Penanggung Jawab</span><span class="ajuan-field-value"><?= esc($lembaga['jabatan_pj'] ?? '-') ?></span></div>
       </div>
     </div>
   </div>
