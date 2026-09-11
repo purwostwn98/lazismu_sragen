@@ -102,7 +102,7 @@
           <option value="3">Biaya pendidikan</option>
           <option value="2">Kebutuhan sosial</option>
           <option value="1">Kebutuhan sekunder</option>
-          <option value="1">Tidak memiliki hutang</option>
+          <option value="0">Tidak memiliki hutang</option>
         </select>
       </div>
     </div>
