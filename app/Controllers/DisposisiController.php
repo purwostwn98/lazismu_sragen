@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\AjuanModel;
 use App\Models\DisposisiModel;
+use App\Models\FormB2Model;
 use App\Models\IndividuModel;
 use App\Models\LembagaModel;
 use App\Models\LogAjuanModel;
@@ -177,7 +178,7 @@ class DisposisiController extends BaseController
     /** Focused survey page: ajuan info, mustahik/lembaga data, and the survey result form. */
     public function survey(string $nomorAjuan)
     {
-        [$ajuan, $individu, $lembaga] = $this->ajuanDenganMustahik($nomorAjuan);
+        [$ajuan, $individu, $lembaga, $b2] = $this->ajuanDenganMustahik($nomorAjuan);
 
         $riwayatSurvey = $this->disposisiModel
             ->where('nomor_ajuan', $nomorAjuan)
@@ -191,6 +192,7 @@ class DisposisiController extends BaseController
             'ajuan'         => $ajuan,
             'individu'      => $individu,
             'lembaga'       => $lembaga,
+            'b2'            => $b2,
             'riwayatSurvey' => $riwayatSurvey,
             'latestSurvey'  => $riwayatSurvey[0] ?? null,
         ]);
@@ -234,7 +236,7 @@ class DisposisiController extends BaseController
     /** Review page for Kepala Divisi Program: ajuan info, mustahik/lembaga data, Surveyor's result, and the review form. */
     public function reviewKepalaDivisiProgram(string $nomorAjuan)
     {
-        [$ajuan, $individu, $lembaga] = $this->ajuanDenganMustahik($nomorAjuan);
+        [$ajuan, $individu, $lembaga, $b2] = $this->ajuanDenganMustahik($nomorAjuan);
 
         $survey       = $this->findDisposisi($nomorAjuan, 'Surveyor');
         $riwayatKadiv = $this->disposisiModel->where('nomor_ajuan', $nomorAjuan)->where('oleh', 'Kepala Divisi Program')->orderBy('created_at', 'DESC')->findAll();
@@ -245,6 +247,7 @@ class DisposisiController extends BaseController
             'ajuan'        => $ajuan,
             'individu'     => $individu,
             'lembaga'      => $lembaga,
+            'b2'           => $b2,
             'survey'       => $survey,
             'riwayatKadiv' => $riwayatKadiv,
             'latestKadiv'  => $riwayatKadiv[0] ?? null,
@@ -278,7 +281,7 @@ class DisposisiController extends BaseController
     /** Review page for Manager: ajuan info, mustahik/lembaga data, prior results, and the review form. */
     public function reviewManager(string $nomorAjuan)
     {
-        [$ajuan, $individu, $lembaga] = $this->ajuanDenganMustahik($nomorAjuan);
+        [$ajuan, $individu, $lembaga, $b2] = $this->ajuanDenganMustahik($nomorAjuan);
 
         $survey         = $this->findDisposisi($nomorAjuan, 'Surveyor');
         $kadiv          = $this->findDisposisi($nomorAjuan, 'Kepala Divisi Program');
@@ -290,6 +293,7 @@ class DisposisiController extends BaseController
             'ajuan'          => $ajuan,
             'individu'       => $individu,
             'lembaga'        => $lembaga,
+            'b2'             => $b2,
             'survey'         => $survey,
             'kadiv'          => $kadiv,
             'riwayatManager' => $riwayatManager,
@@ -326,7 +330,7 @@ class DisposisiController extends BaseController
     /** Review page for Badan Pengurus: ajuan info, mustahik/lembaga data, prior results, and the review form. */
     public function reviewBadanPengurus(string $nomorAjuan)
     {
-        [$ajuan, $individu, $lembaga] = $this->ajuanDenganMustahik($nomorAjuan);
+        [$ajuan, $individu, $lembaga, $b2] = $this->ajuanDenganMustahik($nomorAjuan);
 
         $survey       = $this->findDisposisi($nomorAjuan, 'Surveyor');
         $kadiv        = $this->findDisposisi($nomorAjuan, 'Kepala Divisi Program');
@@ -339,6 +343,7 @@ class DisposisiController extends BaseController
             'ajuan'        => $ajuan,
             'individu'     => $individu,
             'lembaga'      => $lembaga,
+            'b2'           => $b2,
             'survey'       => $survey,
             'kadiv'        => $kadiv,
             'manager'      => $manager,
@@ -389,8 +394,11 @@ class DisposisiController extends BaseController
         $lembaga = $ajuan['jenis_ajuan'] === 'Lembaga'
             ? $this->lembagaModel->withLembaga()->where('tr_lembaga.nomor_ajuan', $nomorAjuan)->first()
             : null;
+        $b2 = $ajuan['jenis_ajuan'] === 'Individu'
+            ? (new FormB2Model())->where('nomor_ajuan', $nomorAjuan)->first()
+            : null;
 
-        return [$ajuan, $individu, $lembaga];
+        return [$ajuan, $individu, $lembaga, $b2];
     }
 
     /** All ajuan that have at least one ad_disposisi entry from the given stage, optionally narrowed further. */

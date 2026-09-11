@@ -42,6 +42,7 @@
 $ajuan        = $ajuan ?? [];
 $individu     = $individu ?? null;
 $lembaga      = $lembaga ?? null;
+$b2           = $b2 ?? null;
 $survey       = $survey ?? null;
 $riwayatKadiv = $riwayatKadiv ?? [];
 $latestKadiv  = $latestKadiv ?? ($riwayatKadiv[0] ?? null);
@@ -182,6 +183,148 @@ $statusColor = ajuan_status_color(isset($ajuan['status_ajuan']) ? (int) $ajuan['
           <?php else: ?>
             <span class="ajuan-field-value text-body-secondary d-block">Belum diunggah</span>
           <?php endif; ?>
+        </div>
+      </div>
+    </div>
+  </div>
+<?php endif; ?>
+
+<?php if ($b2): ?>
+  <?php
+  $warnaKategoriB2 = [
+    'Sangat Perlu Dibantu' => 'danger',
+    'Layak Dibantu'        => 'warning',
+    'Belum Layak Dibantu'  => 'secondary',
+  ];
+  $labelPertanyaanB2 = [
+    'q1_tanggungan_keluarga' => 'Jumlah Tanggungan Keluarga',
+    'q2_anak_sekolah' => 'Jumlah Anak yang Masih Sekolah',
+    'q3_anak_putus_sekolah' => 'Jumlah Anak yang Putus Sekolah',
+    'q4_pengeluaran_bulanan' => 'Jumlah Pengeluaran Bulanan',
+    'q5_obat_rutin' => 'Biaya Obat Rutin Anggota Keluarga yang Sakit',
+    'q6_biaya_pendidikan' => 'Biaya Pendidikan yang Ditanggung',
+    'q7_hutang_berjalan' => 'Hutang Berjalan',
+    'q8_keperluan_hutang' => 'Keperluan Hutang',
+    'q9_pekerjaan_kepala_keluarga' => 'Pekerjaan Kepala Keluarga',
+    'q10_merokok' => 'Merokok',
+    'q11_pekerjaan_pasangan' => 'Pekerjaan Suami/Istri',
+    'q12_usia_mustahik' => 'Usia Mustahik',
+    'q13_kondisi_kepala_keluarga' => 'Kondisi Kesehatan Kepala Keluarga',
+    'q14_kepemilikan_rumah' => 'Kepemilikan Rumah',
+    'q15_luas_rumah' => 'Luas Rumah',
+    'q16_dinding_rumah' => 'Dinding Rumah',
+    'q17_lantai' => 'Lantai',
+    'q18_atap' => 'Atap',
+    'q19_sumber_air_minum' => 'Sumber Air Minum',
+    'q20_mck' => 'MCK',
+    'q21_penerangan' => 'Penerangan',
+    'q22_daya_terpasang' => 'Daya Terpasang',
+    'q23_kelayakan_tidur' => 'Kelayakan Tidur',
+    'q24_makan_perhari' => 'Jumlah Makan Per Hari',
+    'q25_konsumsi_ayam' => 'Konsumsi Ayam',
+    'q26_konsumsi_daging' => 'Konsumsi Daging',
+    'q27_konsumsi_susu' => 'Konsumsi Susu',
+    'q28_belanja_harian' => 'Belanja Harian',
+    'q29_aset_tidak_bergerak' => 'Aset Tidak Bergerak (Sawah/Pekarangan)',
+    'q30_barang_berharga' => 'Barang Berharga/Benda Antik',
+    'q31_aset_bergerak' => 'Aset Bergerak',
+    'q32_bantuan_lembaga_lain' => 'Sedang Menerima Bantuan Lain',
+  ];
+  $barangElektronikLabelB2 = [
+    'tv' => 'Televisi',
+    'hp' => 'HP',
+    'kulkas' => 'Kulkas',
+    'magic_com' => 'Magic Com',
+    'mesin_cuci' => 'Mesin Cuci',
+    'setrika' => 'Setrika Listrik',
+    'dispenser' => 'Dispenser',
+  ];
+  ?>
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">Hasil Assessment Kelayakan (Form B2)</h5>
+    </div>
+    <div class="card-body">
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <div class="ajuan-value-box">
+            <span class="ajuan-field-label">Total Skor</span>
+            <span class="ajuan-field-value fs-4"><?= (int) $b2['total_skor'] ?></span>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="ajuan-value-box">
+            <span class="ajuan-field-label">Kategori Kelayakan</span>
+            <span class="badge bg-label-<?= $warnaKategoriB2[$b2['kategori_kelayakan']] ?? 'secondary' ?> fs-6">
+              <?= esc($b2['kategori_kelayakan']) ?>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-sm btn-label-secondary mb-3" data-bs-toggle="collapse" data-bs-target="#detailB2">
+        <i class="icon-base ti tabler-list-details me-1"></i>Lihat Rincian Jawaban
+      </button>
+
+      <div class="collapse" id="detailB2">
+        <div class="row mb-3">
+          <?php foreach ($labelPertanyaanB2 as $key => $label): ?>
+            <?php
+            // "<key>_opsi" carries the exact answer label the applicant
+            // picked (posted alongside the score at submission time -
+            // see FormB2Reader). Rows saved before that column existed
+            // fall back to showing just the score.
+            $jawabanB2 = $b2[$key . '_opsi'] ?? null;
+            $jawabanB2 ??= 'Skor ' . (int) ($b2[$key] ?? 0);
+            ?>
+            <div class="col-md-6 mb-2">
+              <span class="ajuan-field-label mb-0"><?= esc($label) ?></span>
+              <span class="ajuan-field-value"><?= esc($jawabanB2) ?></span>
+            </div>
+          <?php endforeach; ?>
+        </div>
+
+        <h6 class="text-uppercase text-body-secondary small">Barang Elektronik</h6>
+        <div class="table-responsive mb-3">
+          <table class="table table-sm table-bordered">
+            <thead>
+              <tr>
+                <th>Nama Barang</th>
+                <th>Jumlah</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($barangElektronikLabelB2 as $key => $label): ?>
+                <?php $jumlahB2 = (int) ($b2['elektronik_' . $key . '_jumlah'] ?? 0); ?>
+                <?php if ($jumlahB2 > 0): ?>
+                  <tr>
+                    <td><?= esc($label) ?></td>
+                    <td><?= $jumlahB2 ?></td>
+                    <td><?= esc($b2['elektronik_' . $key . '_status'] ?? '-') ?></td>
+                  </tr>
+                <?php endif; ?>
+              <?php endforeach; ?>
+              <?php if (!empty($b2['elektronik_lainnya_nama']) && (int) $b2['elektronik_lainnya_jumlah'] > 0): ?>
+                <tr>
+                  <td><?= esc($b2['elektronik_lainnya_nama']) ?></td>
+                  <td><?= (int) $b2['elektronik_lainnya_jumlah'] ?></td>
+                  <td><?= esc($b2['elektronik_lainnya_status'] ?? '-') ?></td>
+                </tr>
+              <?php endif; ?>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="row">
+          <div class="col-12 mb-2">
+            <span class="ajuan-field-label">Catatan Tambahan</span>
+            <span class="ajuan-field-value"><?= nl2br(esc($b2['catatan_tambahan'] ?? '-')) ?></span>
+          </div>
+          <div class="col-12">
+            <span class="ajuan-field-label">Bersedia Dipublikasikan</span>
+            <span class="ajuan-field-value"><?= ((int) $b2['bersedia_dipublikasikan'] === 1) ? 'Ya' : 'Tidak' ?></span>
+          </div>
         </div>
       </div>
     </div>
