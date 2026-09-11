@@ -322,9 +322,7 @@ class PengajuanController extends BaseController
             $this->masterLembagaModel->upsert([
                 'nama_lembaga'     => $this->request->getPost('nama_lembaga'),
                 'bidang'           => $this->request->getPost('bidang_lembaga') ?: '-',
-                'tahun_berdiri'    => $this->request->getPost('tahun_berdiri_lembaga') ?: null,
                 'nomor_legalitas'  => $nomorLembaga,
-                'npwp'             => $this->request->getPost('npwp_lembaga') ?: null,
                 'alamat'           => susun_alamat_rt_rw(
                     $this->request->getPost('dusun_lembaga'),
                     $this->request->getPost('rt_lembaga'),
@@ -344,6 +342,7 @@ class PengajuanController extends BaseController
                 'jabatan_pj'       => $this->request->getPost('jabatan_pj_lembaga') ?: '-',
                 'sumber_pendanaan' => $this->request->getPost('sumber_pendanaan_lembaga') ?: null,
                 'nomor_rekening'   => $this->request->getPost('nomor_rekening_lembaga') ?: null,
+                'nama_pemilik_rekening' => $this->request->getPost('nama_pemilik_rekening_lembaga') ?: null,
             ]);
 
             $this->lembagaModel->insert(['nomor_ajuan' => $nomorAjuan, 'nomor_lembaga' => $nomorLembaga]);

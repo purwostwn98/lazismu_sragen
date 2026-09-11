@@ -215,8 +215,6 @@ class MustahikController extends BaseController
             'nomor_legalitas'  => strtoupper(trim((string) $this->request->getPost('nomor_legalitas'))),
             'nama_lembaga'     => $this->request->getPost('nama_lembaga'),
             'bidang'           => $this->request->getPost('bidang'),
-            'tahun_berdiri'    => $this->request->getPost('tahun_berdiri') ?: null,
-            'npwp'             => $this->request->getPost('npwp'),
             'alamat'           => susun_alamat_rt_rw(
                 $this->request->getPost('dusun'),
                 $this->request->getPost('rt'),
@@ -236,6 +234,7 @@ class MustahikController extends BaseController
             'jabatan_pj'       => $this->request->getPost('jabatan_pj'),
             'sumber_pendanaan' => $this->request->getPost('sumber_pendanaan'),
             'nomor_rekening'   => $this->request->getPost('nomor_rekening'),
+            'nama_pemilik_rekening' => $this->request->getPost('nama_pemilik_rekening'),
         ];
     }
 

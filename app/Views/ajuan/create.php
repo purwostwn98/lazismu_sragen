@@ -318,19 +318,11 @@
           <label class="form-label">RW</label>
           <input type="number" name="rw_lembaga" id="rwLembaga" class="form-control" min="0" />
         </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">Tahun Berdiri</label>
-          <input type="number" name="tahun_berdiri_lembaga" id="tahunBerdiriLembaga" class="form-control" min="1900" max="<?= date('Y') ?>" />
-        </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">NPWP</label>
-          <input type="text" name="npwp_lembaga" id="npwpLembaga" class="form-control" />
-        </div>
-        <div class="col-md-3 mb-3">
+        <div class="col-md-6 mb-3">
           <label class="form-label">Telepon</label>
           <input type="text" name="telepon_lembaga" id="teleponLembaga" class="form-control" />
         </div>
-        <div class="col-md-3 mb-3">
+        <div class="col-md-6 mb-3">
           <label class="form-label">Email</label>
           <input type="email" name="email_lembaga" id="emailLembaga" class="form-control" />
         </div>
@@ -341,6 +333,10 @@
         <div class="col-md-6 mb-3">
           <label class="form-label">Nomor Rekening</label>
           <input type="text" name="nomor_rekening_lembaga" id="nomorRekeningLembaga" class="form-control" />
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Nama Pemilik Rekening</label>
+          <input type="text" name="nama_pemilik_rekening_lembaga" id="namaPemilikRekeningLembaga" class="form-control" />
         </div>
         <div class="col-md-6 mb-3">
           <label class="form-label">Nama Penanggung Jawab</label>
@@ -497,12 +493,11 @@
           setValue('dusunLembaga', d.dusun);
           setValue('rtLembaga', d.rt);
           setValue('rwLembaga', d.rw);
-          setValue('tahunBerdiriLembaga', d.tahun_berdiri);
-          setValue('npwpLembaga', d.npwp);
           setValue('teleponLembaga', d.nomor_telepon);
           setValue('emailLembaga', d.email);
           setValue('websiteLembaga', d.website);
           setValue('nomorRekeningLembaga', d.nomor_rekening);
+          setValue('namaPemilikRekeningLembaga', d.nama_pemilik_rekening);
           setValue('namaPjLembaga', d.nama_pj);
           setValue('jabatanPjLembaga', d.jabatan_pj);
           setValue('sumberPendanaanLembaga', d.sumber_pendanaan);

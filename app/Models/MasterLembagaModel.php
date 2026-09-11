@@ -9,9 +9,10 @@ class MasterLembagaModel extends Model
     protected $table      = 'ms_lembaga';
     protected $primaryKey = 'id_ms_lembaga';
     protected $allowedFields = [
-        'nama_lembaga', 'bidang', 'tahun_berdiri', 'nomor_legalitas', 'npwp', 'alamat',
+        'nama_lembaga', 'bidang', 'nomor_legalitas', 'alamat',
         'dusun', 'rt', 'rw', 'provinsi', 'kabupaten', 'kecamatan', 'desa',
-        'nomor_telepon', 'email', 'website', 'nama_pj', 'jabatan_pj', 'sumber_pendanaan', 'nomor_rekening',
+        'nomor_telepon', 'email', 'website', 'nama_pj', 'jabatan_pj', 'sumber_pendanaan',
+        'nomor_rekening', 'nama_pemilik_rekening',
     ];
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';

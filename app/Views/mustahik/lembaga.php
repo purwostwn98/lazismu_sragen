@@ -60,18 +60,14 @@ if (!function_exists('lembagaFields')) {
   function lembagaFields(array $provinsiList, array $l = []): void
   {
     $l += [
-      'nomor_legalitas' => '', 'nama_lembaga' => '', 'bidang' => '', 'tahun_berdiri' => '',
-      'npwp' => '', 'dusun' => '', 'rt' => '', 'rw' => '', 'nomor_telepon' => '', 'email' => '', 'website' => '',
-      'nama_pj' => '', 'jabatan_pj' => '', 'sumber_pendanaan' => '', 'nomor_rekening' => '',
+      'nomor_legalitas' => '', 'nama_lembaga' => '', 'bidang' => '',
+      'dusun' => '', 'rt' => '', 'rw' => '', 'nomor_telepon' => '', 'email' => '', 'website' => '',
+      'nama_pj' => '', 'jabatan_pj' => '', 'sumber_pendanaan' => '', 'nomor_rekening' => '', 'nama_pemilik_rekening' => '',
     ];
 ?>
     <div class="col-md-8 mb-3">
       <label class="form-label">Nomor Legalitas Lembaga (Akta/Izin Operasional/NIB)</label>
       <input type="text" name="nomor_legalitas" class="form-control" value="<?= esc($l['nomor_legalitas']) ?>" required />
-    </div>
-    <div class="col-md-4 mb-3">
-      <label class="form-label">Tahun Berdiri</label>
-      <input type="number" name="tahun_berdiri" class="form-control" min="1900" max="<?= date('Y') ?>" value="<?= esc($l['tahun_berdiri']) ?>" />
     </div>
     <div class="col-md-6 mb-3">
       <label class="form-label">Nama Lembaga</label>
@@ -107,15 +103,11 @@ if (!function_exists('lembagaFields')) {
       <label class="form-label">RW</label>
       <input type="number" name="rw" class="form-control" min="0" value="<?= esc($l['rw']) ?>" />
     </div>
-    <div class="col-md-4 mb-3">
-      <label class="form-label">NPWP</label>
-      <input type="text" name="npwp" class="form-control" value="<?= esc($l['npwp']) ?>" />
-    </div>
-    <div class="col-md-4 mb-3">
+    <div class="col-md-6 mb-3">
       <label class="form-label">Telepon</label>
       <input type="text" name="nomor_telepon" class="form-control" value="<?= esc($l['nomor_telepon']) ?>" required />
     </div>
-    <div class="col-md-4 mb-3">
+    <div class="col-md-6 mb-3">
       <label class="form-label">Email</label>
       <input type="email" name="email" class="form-control" value="<?= esc($l['email']) ?>" required />
     </div>
@@ -126,6 +118,10 @@ if (!function_exists('lembagaFields')) {
     <div class="col-md-6 mb-3">
       <label class="form-label">Nomor Rekening</label>
       <input type="text" name="nomor_rekening" class="form-control" value="<?= esc($l['nomor_rekening']) ?>" />
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Nama Pemilik Rekening</label>
+      <input type="text" name="nama_pemilik_rekening" class="form-control" value="<?= esc($l['nama_pemilik_rekening']) ?>" />
     </div>
     <div class="col-md-6 mb-3">
       <label class="form-label">Nama Penanggung Jawab</label>
@@ -198,35 +194,44 @@ if (!function_exists('lembagaFields')) {
               </form>
             </td>
           </tr>
-
-          <!-- Edit modal -->
-          <div class="modal fade modal-mustahik" id="modalEditLembaga<?= $l['id_ms_lembaga'] ?>" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-              <div class="modal-content">
-                <form action="<?= base_url('mustahik/lembaga/update/' . $l['id_ms_lembaga']) ?>" method="post">
-                  <?= csrf_field() ?>
-                  <div class="modal-header">
-                    <h5 class="modal-title">Edit Lembaga</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                    <div class="row">
-                      <?php lembagaFields($provinsi, $l); ?>
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
         <?php endforeach; ?>
       </tbody>
     </table>
   </div>
 </div>
+
+<!--
+  Edit modals are rendered here, OUTSIDE the <table>, one loop per lembaga.
+  They must NOT live inside <tbody> (as a sibling of <tr>): browsers only
+  allow <tr> as a direct child of <tbody>, so a <div> placed there gets
+  "foster parented" out of the table at parse time, detaching it from its
+  <form> and silently breaking submission (see the identical fix in
+  program/index.php's Tambah Syarat bug and pemohon/index.php's Edit modal).
+-->
+<?php foreach ($lembaga as $l): ?>
+  <div class="modal fade modal-mustahik" id="modalEditLembaga<?= $l['id_ms_lembaga'] ?>" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <form action="<?= base_url('mustahik/lembaga/update/' . $l['id_ms_lembaga']) ?>" method="post">
+          <?= csrf_field() ?>
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Lembaga</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <?php lembagaFields($provinsi, $l); ?>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" class="btn btn-primary">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+<?php endforeach; ?>
 
 <!-- Tambah modal -->
 <div class="modal fade modal-mustahik" id="modalTambahLembaga" tabindex="-1" aria-hidden="true">
