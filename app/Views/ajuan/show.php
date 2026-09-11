@@ -288,9 +288,12 @@ $statusLabels = array_column($statusList, 'keterangan_status', 'id_status');
                   // "<key>_opsi" carries the exact answer label the applicant
                   // picked (posted alongside the score at submission time -
                   // see FormB2Reader). Rows saved before that column existed
-                  // fall back to showing just the score.
-                  $jawaban = $b2[$key . '_opsi'] ?? null;
-                  $jawaban ??= 'Skor ' . (int) ($b2[$key] ?? 0);
+                  // fall back to the frozen historical score->label table
+                  // (unavailable for q32, whose score has always been
+                  // ambiguous), then to the bare score as a last resort.
+                  $jawaban = $b2[$key . '_opsi']
+                      ?? \App\Models\FormB2Model::SKOR_KE_LABEL_HISTORIS[$key][(int) ($b2[$key] ?? 0)]
+                      ?? ('Skor ' . (int) ($b2[$key] ?? 0));
                   ?>
                   <div class="col-md-6 mb-2">
                     <span class="ajuan-field-label mb-0"><?= esc($label) ?></span>

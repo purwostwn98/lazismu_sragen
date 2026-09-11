@@ -273,9 +273,12 @@ $statusColor = ajuan_status_color(isset($ajuan['status_ajuan']) ? (int) $ajuan['
             // "<key>_opsi" carries the exact answer label the applicant
             // picked (posted alongside the score at submission time -
             // see FormB2Reader). Rows saved before that column existed
-            // fall back to showing just the score.
-            $jawabanB2 = $b2[$key . '_opsi'] ?? null;
-            $jawabanB2 ??= 'Skor ' . (int) ($b2[$key] ?? 0);
+            // fall back to the frozen historical score->label table
+            // (unavailable for q32, whose score has always been
+            // ambiguous), then to the bare score as a last resort.
+            $jawabanB2 = $b2[$key . '_opsi']
+                ?? \App\Models\FormB2Model::SKOR_KE_LABEL_HISTORIS[$key][(int) ($b2[$key] ?? 0)]
+                ?? ('Skor ' . (int) ($b2[$key] ?? 0));
             ?>
             <div class="col-md-6 mb-2">
               <span class="ajuan-field-label mb-0"><?= esc($label) ?></span>
