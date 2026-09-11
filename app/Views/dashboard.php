@@ -49,6 +49,9 @@ $bulanLabel = [
         <i class="icon-base ti tabler-refresh me-1"></i>Reset
       </a>
     <?php endif; ?>
+    <a href="<?= base_url('dashboard/export?dari=' . urlencode($dari ?? '') . '&sampai=' . urlencode($sampai ?? '')) ?>" class="btn btn-sm btn-success">
+      <i class="icon-base ti tabler-file-spreadsheet me-1"></i>Download Excel
+    </a>
   </form>
 </div>
 

@@ -34,6 +34,7 @@ $routes->get('pengajuan/verifikasi/(:segment)', 'PengajuanController::verifikasi
 // Everything below requires a logged-in session.
 $routes->group('', ['filter' => 'auth'], static function (RouteCollection $routes) {
     $routes->get('dashboard', 'Home::index');
+    $routes->get('dashboard/export', 'Home::exportExcel');
     $routes->get('dashboard/analitik', 'AnalitikController::index');
 
     // Muzaki (donors)
