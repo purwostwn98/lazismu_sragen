@@ -3,12 +3,23 @@
 <?= $this->section('content') ?>
 
 <?= $this->include('partials/alerts') ?>
-
+<?php
+$pemohon = $pemohon ?? [];
+$pilar = $pilar ?? [];
+$kategori = $kategori ?? [];
+$program = $program ?? [];
+$syarat = $syarat ?? [];
+$provinsi = $provinsi ?? [];
+$pekerjaan = $pekerjaan ?? [];
+$penghasilan = $penghasilan ?? [];
+?>
 <form action="<?= base_url('ajuan/store') ?>" method="post" enctype="multipart/form-data">
   <?= csrf_field() ?>
 
   <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0">Data Ajuan</h5></div>
+    <div class="card-header">
+      <h5 class="mb-0">Data Ajuan</h5>
+    </div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-6 mb-3">
@@ -41,7 +52,9 @@
             <option value="" disabled selected>-- Pilih kategori terlebih dahulu --</option>
           </select>
         </div>
-        <script type="application/json" id="programCascadeData"><?= json_encode(['kategori' => $kategori, 'program' => $program, 'syarat' => $syarat]) ?></script>
+        <script type="application/json" id="programCascadeData">
+          <?= json_encode(['kategori' => $kategori, 'program' => $program, 'syarat' => $syarat]) ?>
+        </script>
         <div class="col-md-6 mb-3">
           <label class="form-label">Nilai Diajukan (Rp)</label>
           <div class="input-group">
@@ -106,7 +119,7 @@
           </div>
           <div class="col-md-6 mb-3 mt-1">
             <label class="form-label">Deskripsi Memo (opsional)</label>
-            <textarea name="deskripsi_memo" class="form-control" rows="1"></textarea>
+            <textarea name="deskripsi_memo" class="form-control" rows="3"></textarea>
           </div>
         </div>
       </div>
@@ -114,161 +127,165 @@
   </div>
 
   <div id="blokIndividu">
-  <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0">Data Mustahik (Individu)</h5></div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-8 mb-3">
-          <label class="form-label">NIK Mustahik</label>
-          <div class="input-group">
-            <input type="text" name="nik_mustahik" id="nikMustahik" class="form-control" maxlength="16" />
-            <button type="button" class="btn btn-outline-primary" id="btnCekIndividu">Cek Data</button>
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">Data Mustahik (Individu)</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-8 mb-3">
+            <label class="form-label">NIK Mustahik</label>
+            <div class="input-group">
+              <input type="text" name="nik_mustahik" id="nikMustahik" class="form-control" maxlength="16" />
+              <button type="button" class="btn btn-outline-primary" id="btnCekIndividu">Cek Data</button>
+            </div>
+            <small class="text-body-secondary">
+              Isi NIK mustahik lalu klik "Cek Data" &mdash; jika pernah diajukan sebelumnya, data akan terisi otomatis.
+            </small>
+            <div id="individuCekResult" class="mt-2"></div>
           </div>
-          <small class="text-body-secondary">
-            Isi NIK mustahik lalu klik "Cek Data" &mdash; jika pernah diajukan sebelumnya, data akan terisi otomatis.
-          </small>
-          <div id="individuCekResult" class="mt-2"></div>
-        </div>
 
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Nama Mustahik</label>
-          <input type="text" name="nama_mustahik" id="namaMustahik" class="form-control" />
-        </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">Tempat Lahir</label>
-          <input type="text" name="tempat_lahir_mustahik" id="tempatLahirMustahik" class="form-control" />
-        </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">Tanggal Lahir</label>
-          <input type="date" name="tgl_lahir_mustahik" id="tglLahirMustahik" class="form-control" />
-        </div>
-        <div class="col-md-4 mb-3">
-          <label class="form-label">Jenis Kelamin</label>
-          <select name="kelamin_mustahik" id="kelaminMustahik" class="form-select">
-            <option value="Laki-laki">Laki-laki</option>
-            <option value="Perempuan">Perempuan</option>
-          </select>
-        </div>
-        <div class="col-md-4 mb-3">
-          <label class="form-label">Agama</label>
-          <select name="agama_mustahik" id="agamaMustahik" class="form-select">
-            <?php foreach (['Islam', 'Protestan', 'Katolik', 'Hindhu', 'Budha'] as $ag): ?>
-              <option value="<?= $ag ?>"><?= $ag ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <div class="col-md-4 mb-3">
-          <label class="form-label">Jumlah Keluarga</label>
-          <input type="number" name="jml_keluarga" id="jmlKeluarga" class="form-control" min="0" />
-        </div>
-
-        <div class="row wilayah-block">
           <div class="col-md-6 mb-3">
-            <label class="form-label">Provinsi</label>
-            <select name="provinsi_mustahik" class="form-select sel-provinsi">
-              <option value="">-- Pilih Provinsi --</option>
-              <?php foreach ($provinsi as $p): ?>
-                <option value="<?= $p['id_provinsi'] ?>"><?= esc($p['nama_provinsi']) ?></option>
+            <label class="form-label">Nama Mustahik</label>
+            <input type="text" name="nama_mustahik" id="namaMustahik" class="form-control" />
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Tempat Lahir</label>
+            <input type="text" name="tempat_lahir_mustahik" id="tempatLahirMustahik" class="form-control" />
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Tanggal Lahir</label>
+            <input type="date" name="tgl_lahir_mustahik" id="tglLahirMustahik" class="form-control" />
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Jenis Kelamin</label>
+            <select name="kelamin_mustahik" id="kelaminMustahik" class="form-select">
+              <option value="Laki-laki">Laki-laki</option>
+              <option value="Perempuan">Perempuan</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Agama</label>
+            <select name="agama_mustahik" id="agamaMustahik" class="form-select">
+              <?php foreach (['Islam', 'Protestan', 'Katolik', 'Hindhu', 'Budha'] as $ag): ?>
+                <option value="<?= $ag ?>"><?= $ag ?></option>
               <?php endforeach; ?>
             </select>
           </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Kabupaten/Kota</label>
-            <select name="kabupaten_mustahik" class="form-select sel-kabupaten">
-              <option value="">-- Pilih Provinsi dahulu --</option>
-            </select>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Jumlah Keluarga</label>
+            <input type="number" name="jml_keluarga" id="jmlKeluarga" class="form-control" min="0" />
           </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Kecamatan</label>
-            <select name="kecamatan_mustahik" class="form-select sel-kecamatan">
-              <option value="">-- Pilih Kabupaten dahulu --</option>
-            </select>
-          </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Kelurahan/Desa</label>
-            <select name="kelurahan_mustahik" class="form-select sel-kelurahan">
-              <option value="">-- Pilih Kecamatan dahulu --</option>
-            </select>
-          </div>
-        </div>
 
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Dusun / Nama Jalan</label>
-          <input type="text" name="dusun_mustahik" id="dusunMustahik" class="form-control" />
-        </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">RT</label>
-          <input type="number" name="rt_mustahik" id="rtMustahik" class="form-control" min="0" />
-        </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">RW</label>
-          <input type="number" name="rw_mustahik" id="rwMustahik" class="form-control" min="0" />
-        </div>
-        <div class="col-md-4 mb-3">
-          <label class="form-label">Status Pendidikan</label>
-          <select name="status_pendidikan" id="statusPendidikan" class="form-select">
-            <?php foreach (['SD', 'SMP', 'SMA/SMK', 'Diploma', 'Sarjana', 'Pascasarjana', 'tidak tamat SD', 'lainnya'] as $sp): ?>
-              <option value="<?= $sp ?>"><?= $sp ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <div class="col-md-4 mb-3">
-          <label class="form-label">Status Marital</label>
-          <select name="status_marital" id="statusMarital" class="form-select">
-            <?php foreach (['Lajang', 'Menikah', 'Cerai', 'Lainnya'] as $sm): ?>
-              <option value="<?= $sm ?>"><?= $sm ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <div class="col-md-4 mb-3">
-          <label class="form-label">Pekerjaan</label>
-          <select name="pekerjaan" id="pekerjaanMustahik" class="form-select">
-            <option value="">-- Pilih --</option>
-            <?php foreach ($pekerjaan as $pk): ?>
-              <option value="<?= $pk['id_pekerjaan'] ?>"><?= esc($pk['nama_pekerjaan']) ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <div class="col-md-4 mb-3">
-          <label class="form-label">Penghasilan</label>
-          <select name="penghasilan" id="penghasilanMustahik" class="form-select">
-            <option value="">-- Pilih --</option>
-            <?php foreach ($penghasilan as $pg): ?>
-              <option value="<?= $pg['id_penghasilan'] ?>"><?= esc($pg['label_penghasilan']) ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <div class="col-md-4 mb-3">
-          <label class="form-label">No. Handphone</label>
-          <input type="text" name="no_handphone" id="noHandphoneMustahik" class="form-control" />
-        </div>
-        <div class="col-md-4 mb-3">
-          <label class="form-label">Email</label>
-          <input type="email" name="email_mustahik" id="emailMustahik" class="form-control" />
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Nomor KK</label>
-          <input type="text" name="kk" id="kkMustahik" class="form-control" />
-        </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">Foto KTP</label>
-          <input type="file" name="foto_ktp" class="form-control" />
-          <small class="text-body-secondary">Kosongkan jika sudah pernah diunggah sebelumnya.</small>
-        </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">Foto KK</label>
-          <input type="file" name="foto_kk" class="form-control" />
-          <small class="text-body-secondary">Kosongkan jika sudah pernah diunggah sebelumnya.</small>
+          <div class="row wilayah-block">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Provinsi</label>
+              <select name="provinsi_mustahik" class="form-select sel-provinsi">
+                <option value="">-- Pilih Provinsi --</option>
+                <?php foreach ($provinsi as $p): ?>
+                  <option value="<?= $p['id_provinsi'] ?>"><?= esc($p['nama_provinsi']) ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Kabupaten/Kota</label>
+              <select name="kabupaten_mustahik" class="form-select sel-kabupaten">
+                <option value="">-- Pilih Provinsi dahulu --</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Kecamatan</label>
+              <select name="kecamatan_mustahik" class="form-select sel-kecamatan">
+                <option value="">-- Pilih Kabupaten dahulu --</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Kelurahan/Desa</label>
+              <select name="kelurahan_mustahik" class="form-select sel-kelurahan">
+                <option value="">-- Pilih Kecamatan dahulu --</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Dusun / Nama Jalan</label>
+            <input type="text" name="dusun_mustahik" id="dusunMustahik" class="form-control" />
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">RT</label>
+            <input type="number" name="rt_mustahik" id="rtMustahik" class="form-control" min="0" />
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">RW</label>
+            <input type="number" name="rw_mustahik" id="rwMustahik" class="form-control" min="0" />
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Status Pendidikan</label>
+            <select name="status_pendidikan" id="statusPendidikan" class="form-select">
+              <?php foreach (['SD', 'SMP', 'SMA/SMK', 'Diploma', 'Sarjana', 'Pascasarjana', 'tidak tamat SD', 'lainnya'] as $sp): ?>
+                <option value="<?= $sp ?>"><?= $sp ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Status Marital</label>
+            <select name="status_marital" id="statusMarital" class="form-select">
+              <?php foreach (['Lajang', 'Menikah', 'Cerai', 'Lainnya'] as $sm): ?>
+                <option value="<?= $sm ?>"><?= $sm ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Pekerjaan</label>
+            <select name="pekerjaan" id="pekerjaanMustahik" class="form-select">
+              <option value="">-- Pilih --</option>
+              <?php foreach ($pekerjaan as $pk): ?>
+                <option value="<?= $pk['id_pekerjaan'] ?>"><?= esc($pk['nama_pekerjaan']) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Penghasilan</label>
+            <select name="penghasilan" id="penghasilanMustahik" class="form-select">
+              <option value="">-- Pilih --</option>
+              <?php foreach ($penghasilan as $pg): ?>
+                <option value="<?= $pg['id_penghasilan'] ?>"><?= esc($pg['label_penghasilan']) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">No. Handphone</label>
+            <input type="text" name="no_handphone" id="noHandphoneMustahik" class="form-control" />
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email_mustahik" id="emailMustahik" class="form-control" />
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Nomor KK</label>
+            <input type="text" name="kk" id="kkMustahik" class="form-control" />
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Foto KTP</label>
+            <input type="file" name="foto_ktp" class="form-control" />
+            <small class="text-body-secondary">Kosongkan jika sudah pernah diunggah sebelumnya.</small>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Foto KK</label>
+            <input type="file" name="foto_kk" class="form-control" />
+            <small class="text-body-secondary">Kosongkan jika sudah pernah diunggah sebelumnya.</small>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <?= $this->include('pengajuan/_form_b2') ?>
+    <?= $this->include('pengajuan/_form_b2') ?>
   </div>
 
   <div class="card mb-4 d-none" id="blokLembaga">
-    <div class="card-header"><h5 class="mb-0">Data Lembaga</h5></div>
+    <div class="card-header">
+      <h5 class="mb-0">Data Lembaga</h5>
+    </div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-8 mb-3">
@@ -383,7 +400,7 @@
 <script src="<?= base_url('assets/js/program-cascade.js') ?>"></script>
 <script src="<?= base_url('assets/js/currency-format.js') ?>"></script>
 <script>
-  (function () {
+  (function() {
     var BASE = window.location.origin;
 
     window.ProgramCascade.init(document);
@@ -404,11 +421,15 @@
       if (jenisIndividu.checked) {
         blokIndividu.classList.remove('d-none');
         blokLembaga.classList.add('d-none');
-        requiredDalamIndividu.forEach(function(el) { el.required = true; });
+        requiredDalamIndividu.forEach(function(el) {
+          el.required = true;
+        });
       } else {
         blokIndividu.classList.add('d-none');
         blokLembaga.classList.remove('d-none');
-        requiredDalamIndividu.forEach(function(el) { el.required = false; });
+        requiredDalamIndividu.forEach(function(el) {
+          el.required = false;
+        });
       }
     }
 
@@ -430,7 +451,7 @@
       return '<div class="alert alert-' + kind + ' py-2 mb-0">' + message + '</div>';
     }
 
-    document.getElementById('btnCekIndividu').addEventListener('click', function () {
+    document.getElementById('btnCekIndividu').addEventListener('click', function() {
       var nik = document.getElementById('nikMustahik').value.trim();
       var resultEl = document.getElementById('individuCekResult');
 
@@ -444,9 +465,14 @@
 
       resultEl.innerHTML = alertBox('secondary', 'Memeriksa data&hellip;');
 
-      fetch(BASE + '/ajuan/cek-individu', { method: 'POST', body: body })
-        .then(function (res) { return res.json(); })
-        .then(function (res) {
+      fetch(BASE + '/ajuan/cek-individu', {
+          method: 'POST',
+          body: body
+        })
+        .then(function(res) {
+          return res.json();
+        })
+        .then(function(res) {
           if (!res.found) {
             resultEl.innerHTML = alertBox('info', 'Data belum terdaftar. Silakan lengkapi form di bawah ini.');
             return;
@@ -482,12 +508,12 @@
 
           resultEl.innerHTML = alertBox('success', 'Data mustahik ditemukan dan otomatis diisi. Silakan periksa kembali sebelum mengirim.');
         })
-        .catch(function () {
+        .catch(function() {
           resultEl.innerHTML = alertBox('danger', 'Gagal memeriksa data. Coba lagi.');
         });
     });
 
-    document.getElementById('btnCekLembaga').addEventListener('click', function () {
+    document.getElementById('btnCekLembaga').addEventListener('click', function() {
       var nomor = document.getElementById('nomorLembaga').value.trim();
       var resultEl = document.getElementById('lembagaCekResult');
 
@@ -501,9 +527,14 @@
 
       resultEl.innerHTML = alertBox('secondary', 'Memeriksa data&hellip;');
 
-      fetch(BASE + '/ajuan/cek-lembaga', { method: 'POST', body: body })
-        .then(function (res) { return res.json(); })
-        .then(function (res) {
+      fetch(BASE + '/ajuan/cek-lembaga', {
+          method: 'POST',
+          body: body
+        })
+        .then(function(res) {
+          return res.json();
+        })
+        .then(function(res) {
           if (!res.found) {
             resultEl.innerHTML = alertBox('info', 'Lembaga belum terdaftar. Silakan lengkapi data di bawah ini.');
             return;
@@ -536,7 +567,7 @@
 
           resultEl.innerHTML = alertBox('success', 'Data lembaga ditemukan dan otomatis diisi. Silakan periksa kembali sebelum mengirim.');
         })
-        .catch(function () {
+        .catch(function() {
           resultEl.innerHTML = alertBox('danger', 'Gagal memeriksa data. Coba lagi.');
         });
     });
