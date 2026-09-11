@@ -133,6 +133,21 @@ class AjuanController extends BaseController
         ]);
     }
 
+    /** Ajuan submitted by internal staff (via ajuan/create's "Ini ajuan internal" checkbox), regardless of jenis_ajuan or status. */
+    public function internal()
+    {
+        $rows = $this->ajuanModel->withRelasi()
+            ->where('tr_ajuan.is_internal', 1)
+            ->orderBy('tgl_diajukan', 'DESC')
+            ->findAll();
+
+        return view('ajuan/internal', [
+            'title'      => 'Ajuan Internal',
+            'activeMenu' => 'ajuan-internal',
+            'rows'       => $rows,
+        ]);
+    }
+
     /**
      * Splits ajuan into the same status groups lazismu_reborn's admin tabs
      * use (Baru/Proses/Rutin/Selesai/Ditolak), optionally scoped to one
@@ -199,6 +214,7 @@ class AjuanController extends BaseController
 
         $fileFormulir = $this->moveUpload('file_formulir', 'formulir');
         $fileProposal = $this->moveUpload('file_proposal', 'proposal');
+        $fileMemo     = $this->moveUpload('file_memo', 'memo');
 
         $nomorAjuan = $this->ajuanModel->simpan([
             'nik'                 => $this->request->getPost('nik'),
@@ -207,8 +223,11 @@ class AjuanController extends BaseController
             'nilai_diajukan'      => $this->request->getPost('nilai_diajukan'),
             'deskripsi_ajuan'     => $this->request->getPost('deskripsi_ajuan'),
             'jenis_ajuan'         => $this->request->getPost('jenis_ajuan'),
+            'is_internal'         => $this->request->getPost('is_internal') ? 1 : 0,
             'file_formulir'       => $fileFormulir,
             'file_proposal'       => $fileProposal,
+            'file_memo'           => $fileMemo,
+            'deskripsi_memo'      => $this->request->getPost('deskripsi_memo') ?: null,
         ]);
 
         if (!$nomorAjuan) {
@@ -1054,10 +1073,10 @@ class AjuanController extends BaseController
         return redirect()->to(base_url('ajuan/' . $nomorAjuan));
     }
 
-    /** Streams the ajuan's uploaded file_proposal inline so admins can view it in a new tab. */
+    /** Streams the ajuan's uploaded file_proposal/file_memo inline so admins can view it in a new tab. */
     public function dokumenAjuan(string $nomorAjuan, string $jenis)
     {
-        if (!in_array($jenis, ['proposal'], true)) {
+        if (!in_array($jenis, ['proposal', 'memo'], true)) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 

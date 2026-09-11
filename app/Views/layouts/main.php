@@ -92,7 +92,7 @@
           <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Transaksi</span>
           </li>
-          <?php $ajuanSubActive = in_array($activeMenu ?? '', ['ajuan', 'ajuan-individu', 'ajuan-lembaga', 'ajuan-rutin'], true); ?>
+          <?php $ajuanSubActive = in_array($activeMenu ?? '', ['ajuan', 'ajuan-individu', 'ajuan-lembaga', 'ajuan-rutin', 'ajuan-internal'], true); ?>
           <li class="menu-item <?= $ajuanSubActive ? 'active open' : '' ?>">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
               <i class="menu-icon icon-base ti tabler-file-description"></i>
@@ -112,6 +112,11 @@
               <li class="menu-item <?= ($activeMenu ?? '') === 'ajuan-rutin' ? 'active' : '' ?>">
                 <a href="<?= base_url('ajuan/rutin') ?>" class="menu-link">
                   <div data-i18n="Ajuan Rutin">Ajuan Rutin</div>
+                </a>
+              </li>
+              <li class="menu-item <?= ($activeMenu ?? '') === 'ajuan-internal' ? 'active' : '' ?>">
+                <a href="<?= base_url('ajuan/internal') ?>" class="menu-link">
+                  <div data-i18n="Ajuan Internal">Ajuan Internal</div>
                 </a>
               </li>
             </ul>

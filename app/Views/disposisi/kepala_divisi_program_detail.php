@@ -63,6 +63,9 @@ $statusColor = ajuan_status_color(isset($ajuan['status_ajuan']) ? (int) $ajuan['
           <h4 class="mb-0">Tinjau Ajuan #<?= esc($ajuan['nomor_ajuan']) ?></h4>
           <span class="badge bg-label-<?= $statusColor ?>"><?= esc($ajuan['keterangan_status'] ?? '-') ?></span>
           <span class="badge bg-label-secondary"><?= esc($ajuan['jenis_ajuan']) ?></span>
+          <?php if (!empty($ajuan['is_internal'])): ?>
+            <span class="badge bg-label-info">Internal</span>
+          <?php endif; ?>
         </div>
         <p class="text-body-secondary mb-0">
           <?= esc($ajuan['nama_pemohon'] ?? '-') ?> &middot; <?= esc($ajuan['nama_program'] ?? '-') ?>
@@ -133,7 +136,7 @@ $statusColor = ajuan_status_color(isset($ajuan['status_ajuan']) ? (int) $ajuan['
         <span class="ajuan-field-label">Deskripsi</span>
         <span class="ajuan-field-value"><?= nl2br(esc($ajuan['deskripsi_ajuan'])) ?></span>
       </div>
-      <div class="col-12">
+      <div class="col-12<?= !empty($ajuan['is_internal']) ? ' mb-3' : '' ?>">
         <span class="ajuan-field-label">Proposal</span>
         <?php if (!empty($ajuan['file_proposal'])): ?>
           <a href="<?= base_url('ajuan/' . $ajuan['nomor_ajuan'] . '/dokumen/proposal') ?>" target="_blank" class="btn btn-sm btn-label-secondary">
@@ -143,6 +146,22 @@ $statusColor = ajuan_status_color(isset($ajuan['status_ajuan']) ? (int) $ajuan['
           <span class="ajuan-field-value text-body-secondary d-block">Belum diunggah</span>
         <?php endif; ?>
       </div>
+      <?php if (!empty($ajuan['is_internal'])): ?>
+        <div class="col-md-6 mb-3">
+          <span class="ajuan-field-label">Memo</span>
+          <?php if (!empty($ajuan['file_memo'])): ?>
+            <a href="<?= base_url('ajuan/' . $ajuan['nomor_ajuan'] . '/dokumen/memo') ?>" target="_blank" class="btn btn-sm btn-label-secondary">
+              <i class="icon-base ti tabler-file-text me-1"></i>Lihat Memo
+            </a>
+          <?php else: ?>
+            <span class="ajuan-field-value text-body-secondary d-block">Belum diunggah</span>
+          <?php endif; ?>
+        </div>
+        <div class="col-md-6 mb-3">
+          <span class="ajuan-field-label">Deskripsi Memo</span>
+          <span class="ajuan-field-value"><?= !empty($ajuan['deskripsi_memo']) ? nl2br(esc($ajuan['deskripsi_memo'])) : '-' ?></span>
+        </div>
+      <?php endif; ?>
     </div>
   </div>
 </div>

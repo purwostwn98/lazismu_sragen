@@ -93,6 +93,22 @@
           <input type="file" name="file_proposal" class="form-control" required />
           <small class="text-body-secondary">Wajib diunggah dan harus memuat seluruh syarat kegiatan yang dipilih.</small>
         </div>
+        <div class="col-12">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="is_internal" value="1" id="isInternal" />
+            <label class="form-check-label" for="isInternal">Ini ajuan internal (diajukan oleh pihak internal)</label>
+          </div>
+        </div>
+        <div id="blokMemo" class="d-none">
+          <div class="col-md-6 mb-3 mt-1">
+            <label class="form-label">Unggahan Memo (opsional)</label>
+            <input type="file" name="file_memo" class="form-control" />
+          </div>
+          <div class="col-md-6 mb-3 mt-1">
+            <label class="form-label">Deskripsi Memo (opsional)</label>
+            <textarea name="deskripsi_memo" class="form-control" rows="1"></textarea>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -398,6 +414,12 @@
 
     jenisIndividu.addEventListener('change', toggleBlok);
     jenisLembaga.addEventListener('change', toggleBlok);
+
+    var isInternal = document.getElementById('isInternal');
+    var blokMemo = document.getElementById('blokMemo');
+    isInternal.addEventListener('change', function() {
+      blokMemo.classList.toggle('d-none', !isInternal.checked);
+    });
 
     function setValue(id, value) {
       var el = document.getElementById(id);

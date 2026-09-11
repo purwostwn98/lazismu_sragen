@@ -102,6 +102,7 @@ $routes->group('', ['filter' => 'auth'], static function (RouteCollection $route
     $routes->get('ajuan/individu', 'AjuanController::individu');
     $routes->get('ajuan/lembaga', 'AjuanController::lembaga');
     $routes->get('ajuan/rutin', 'AjuanController::rutin');
+    $routes->get('ajuan/internal', 'AjuanController::internal');
     $routes->get('ajuan/create', 'AjuanController::create');
     $routes->post('ajuan/store', 'AjuanController::store');
     $routes->post('ajuan/cek-individu', 'AjuanController::cekIndividu');

@@ -10,8 +10,8 @@ class AjuanModel extends Model
     protected $primaryKey = 'id_ajuan';
     protected $allowedFields = [
         'nomor_ajuan', 'nik', 'id_kategori_program', 'id_program', 'nilai_diajukan', 'deskripsi_ajuan',
-        'jenis_ajuan', 'file_formulir', 'file_proposal', 'status_ajuan',
-        'status_tersalurkan', 'nilai_disetujui', 'sifat_bantuan', 'edit_ajuan',
+        'jenis_ajuan', 'is_internal', 'file_formulir', 'file_proposal', 'file_memo', 'deskripsi_memo',
+        'status_ajuan', 'status_tersalurkan', 'nilai_disetujui', 'sifat_bantuan', 'edit_ajuan',
     ];
     protected $useTimestamps = true;
     protected $createdField  = 'tgl_diajukan';
