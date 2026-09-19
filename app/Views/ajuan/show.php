@@ -183,9 +183,14 @@ $statusLabels = array_column($statusList, 'keterangan_status', 'id_status');
       <div class="card mb-4">
         <div class="card-header d-flex align-items-center justify-content-between">
           <h5 class="mb-0">Data Mustahik (Individu)</h5>
-          <button type="button" class="btn btn-sm btn-label-primary" data-bs-toggle="modal" data-bs-target="#editMustahikModal">
-            <i class="icon-base ti tabler-pencil me-1"></i>Edit
-          </button>
+          <div class="d-flex gap-2">
+            <a href="<?= base_url('ajuan/' . $ajuan['nomor_ajuan'] . '/form-b1') ?>" class="btn btn-sm btn-label-secondary">
+              <i class="icon-base ti tabler-download me-1"></i>Download Form B1
+            </a>
+            <button type="button" class="btn btn-sm btn-label-primary" data-bs-toggle="modal" data-bs-target="#editMustahikModal">
+              <i class="icon-base ti tabler-pencil me-1"></i>Edit
+            </button>
+          </div>
         </div>
         <div class="card-body">
           <div class="row">

@@ -1096,6 +1096,53 @@ class AjuanController extends BaseController
             ->setBody(file_get_contents($path));
     }
 
+    /**
+     * Downloadable PDF of Form B1: the calon mustahik data sheet (identity,
+     * address/contact, pemohon, ajuan summary, document checklist) with
+     * signature spaces. Individu ajuan only - Lembaga has no mustahik profile.
+     */
+    public function pdfFormB1(string $nomorAjuan)
+    {
+        $ajuan = $this->ajuanModel->withRelasi()->where('tr_ajuan.nomor_ajuan', $nomorAjuan)->first();
+
+        if (!$ajuan) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $individu = $ajuan['jenis_ajuan'] === 'Individu'
+            ? $this->individuModel->withMustahikLengkap()->where('tr_individu.nomor_ajuan', $nomorAjuan)->first()
+            : null;
+
+        if (!$individu) {
+            session()->setFlashdata('gagal', 'Form B1 hanya tersedia untuk ajuan Individu.');
+
+            return redirect()->to(base_url('ajuan/' . $nomorAjuan));
+        }
+
+        $html = view('ajuan/pdf/form_b1', [
+            'ajuan'    => $ajuan,
+            'individu' => $individu,
+        ]);
+
+        $pdf = new TCPDF('P', PDF_UNIT, 'A4', true, 'UTF-8', false);
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('Lazismu Sragen');
+        $pdf->SetTitle('Form B1 ' . $nomorAjuan);
+        $pdf->SetSubject('Form B1 - Data Calon Mustahik ' . $nomorAjuan);
+        $pdf->SetMargins(PDF_MARGIN_LEFT, 10, PDF_MARGIN_RIGHT);
+        $pdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->AddPage();
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        return $this->response
+            ->setContentType('application/pdf')
+            ->setHeader('Content-Disposition', 'attachment; filename="Form-B1-' . $nomorAjuan . '.pdf"')
+            ->setBody($pdf->Output('Form-B1-' . $nomorAjuan . '.pdf', 'S'));
+    }
+
     /** Streams the mustahik's foto_ktp/foto_kk inline so admins can view it in a new tab. */
     public function dokumenMustahik(string $nomorAjuan, string $jenis)
     {
