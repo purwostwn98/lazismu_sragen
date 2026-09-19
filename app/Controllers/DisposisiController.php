@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\FormB2Reader;
 use App\Models\AjuanModel;
 use App\Models\DisposisiModel;
 use App\Models\FormB2Model;
@@ -193,14 +194,65 @@ class DisposisiController extends BaseController
             'individu'      => $individu,
             'lembaga'       => $lembaga,
             'b2'            => $b2,
+            // Individu ajuan must have its Form B2 assessment filled in
+            // before the survey result can be saved (see storeSurvey()).
+            'b2BelumDiisi'  => $ajuan['jenis_ajuan'] === 'Individu' && $b2 === null,
             'riwayatSurvey' => $riwayatSurvey,
             'latestSurvey'  => $riwayatSurvey[0] ?? null,
         ]);
     }
 
+    /** Saves the Form B2 eligibility assessment (Individu ajuan only), filled in by the Surveyor. */
+    public function storeB2(string $nomorAjuan)
+    {
+        $ajuan = $this->ajuanModel->where('nomor_ajuan', $nomorAjuan)->first();
+
+        if (!$ajuan) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $redirectUrl = base_url('disposisi/survey/' . $nomorAjuan);
+
+        if ($ajuan['jenis_ajuan'] !== 'Individu') {
+            session()->setFlashdata('gagal', 'Form B2 hanya berlaku untuk ajuan Individu.');
+
+            return redirect()->to($redirectUrl);
+        }
+
+        // The form relies on browser "required" alone, so re-check here that
+        // every scored question carries a "score|label" pick - a missing one
+        // would otherwise silently save as score 0 and skew total_skor.
+        $lengkap = in_array($this->request->getPost('b2_bersedia_dipublikasikan'), ['0', '1'], true);
+        foreach (FormB2Model::PERTANYAAN_SKOR as $key) {
+            $lengkap = $lengkap && preg_match('/^\d+\|.+$/', (string) $this->request->getPost('b2_' . $key)) === 1;
+        }
+
+        if (!$lengkap) {
+            session()->setFlashdata('gagal', 'Seluruh pertanyaan Form B2 wajib dijawab.');
+
+            return redirect()->to($redirectUrl);
+        }
+
+        (new FormB2Model())->upsert($nomorAjuan, FormB2Reader::dariRequest($this->request));
+
+        $this->logAjuanModel->catat($nomorAjuan, (int) $ajuan['status_ajuan'], 'Form B2 disimpan oleh ' . (session()->get('nama') ?? 'Surveyor'));
+
+        session()->setFlashdata('berhasil', 'Form B2 berhasil disimpan!');
+
+        return redirect()->to($redirectUrl);
+    }
+
     /** Saves a Surveyor's survey result (deskripsi, dokumentasi, rekomendasi) for an ajuan. */
     public function storeSurvey(string $nomorAjuan)
     {
+        $ajuan = $this->ajuanModel->where('nomor_ajuan', $nomorAjuan)->first();
+
+        if ($ajuan && $ajuan['jenis_ajuan'] === 'Individu' && (new FormB2Model())->where('nomor_ajuan', $nomorAjuan)->first() === null) {
+            session()->setFlashdata('gagal', 'Isi Form B2 (assessment kelayakan) terlebih dahulu sebelum menyimpan hasil survey.');
+
+            return redirect()->to(base_url('disposisi/survey/' . $nomorAjuan));
+        }
+
         return $this->submitDisposisi(
             $nomorAjuan,
             'Surveyor',

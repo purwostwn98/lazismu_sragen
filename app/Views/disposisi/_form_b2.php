@@ -1,22 +1,25 @@
 <?php
 /**
  * Digitized "Formulir Survey Calon Mustahik" (bahan/B2 Sragen.xlsx) — a
- * 32-question weighted eligibility assessment. Shared between
- * pengajuan/formulir.php (public) and ajuan/create.php (internal Tambah
- * Ajuan) via $this->include() — no per-request data to inject, so the
- * include-vs-view data-passing quirk doesn't apply here (both are blank
- * "create" forms, never pre-filled).
+ * 32-question weighted eligibility assessment, filled in by the Surveyor
+ * on disposisi/survey.php (posted to DisposisiController::storeB2()).
  *
  * Field names are prefixed b2_ and match tr_form_b2's columns 1:1, so
- * controllers can read $this->request->getPost('b2_<column>') directly.
+ * FormB2Reader can read $request->getPost('b2_<column>') directly.
+ *
+ * Renders only the card (no <form> tag) so the caller owns the form
+ * action/CSRF/submit button. Pass $b2 (the saved tr_form_b2 row, or null)
+ * via view() to pre-fill the fields for editing; include() would not carry
+ * that per-request data reliably.
  */
+$nilaiForm = !empty($b2) ? (new \App\Models\FormB2Model())->nilaiForm($b2) : [];
 ?>
 <div class="card mb-4" id="blokFormB2">
   <div class="card-header">
     <h5 class="mb-0">Form B2 — Assessment Kelayakan Mustahik</h5>
     <small class="text-body-secondary">
-      Jawab seluruh pertanyaan berikut sesuai kondisi calon mustahik saat ini. Jawaban ini digunakan untuk menilai
-      tingkat kelayakan penerima bantuan.
+      Isi seluruh pertanyaan berikut berdasarkan hasil survey/wawancara dengan calon mustahik. Jawaban ini
+      digunakan untuk menilai tingkat kelayakan penerima bantuan.
     </small>
   </div>
   <div class="card-body">
@@ -428,7 +431,7 @@
         <textarea name="b2_catatan_tambahan" class="form-control" rows="2"></textarea>
       </div>
       <div class="col-12">
-        <label class="form-label d-block">Bersedia data ini dipublikasikan?</label>
+        <label class="form-label d-block">Mustahik bersedia data ini dipublikasikan?</label>
         <div class="form-check form-check-inline">
           <input class="form-check-input" type="radio" name="b2_bersedia_dipublikasikan" id="b2PublikasiYa" value="1" required />
           <label class="form-check-label" for="b2PublikasiYa">Ya</label>
@@ -441,3 +444,26 @@
     </div>
   </div>
 </div>
+
+<?php if ($nilaiForm !== []): ?>
+  <script>
+    // Pre-fills the fields from the saved assessment (edit mode). Select
+    // values are "score|label", matching each <option value>.
+    // Exposed as window.isiFormB2 so the page's Batal button can re-apply it.
+    (function() {
+      var nilai = <?= json_encode($nilaiForm, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+      window.isiFormB2 = function() {
+        Object.keys(nilai).forEach(function(nama) {
+          document.querySelectorAll('#blokFormB2 [name="' + nama + '"]').forEach(function(el) {
+            if (el.type === 'radio') {
+              el.checked = (el.value === nilai[nama]);
+            } else {
+              el.value = nilai[nama];
+            }
+          });
+        });
+      };
+      window.isiFormB2();
+    })();
+  </script>
+<?php endif; ?>

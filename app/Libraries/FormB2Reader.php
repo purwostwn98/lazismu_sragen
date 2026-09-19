@@ -6,11 +6,10 @@ use App\Models\FormB2Model;
 use CodeIgniter\HTTP\IncomingRequest;
 
 /**
- * Reads the b2_* fields posted by pengajuan/_form_b2.php into a
+ * Reads the b2_* fields posted by disposisi/_form_b2.php into a
  * ready-to-upsert tr_form_b2 row (including the computed total_skor /
- * kategori_kelayakan) — shared by PengajuanController::storeFormulir()
- * and AjuanController::store() so the ~49-field extraction isn't
- * duplicated between the public and internal ajuan-creation forms.
+ * kategori_kelayakan) for DisposisiController::storeB2(), keeping the
+ * ~49-field extraction out of the controller.
  */
 class FormB2Reader
 {

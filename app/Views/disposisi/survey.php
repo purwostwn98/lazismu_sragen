@@ -43,6 +43,7 @@ $ajuan    = $ajuan ?? [];
 $individu = $individu ?? null;
 $lembaga  = $lembaga ?? null;
 $b2       = $b2 ?? null;
+$b2BelumDiisi = $b2BelumDiisi ?? false;
 
 $riwayatSurvey = $riwayatSurvey ?? [];
 $latestSurvey  = $latestSurvey ?? ($riwayatSurvey[0] ?? null);
@@ -259,9 +260,12 @@ $statusColor = ajuan_status_color(isset($ajuan['status_ajuan']) ? (int) $ajuan['
     'dispenser' => 'Dispenser',
   ];
   ?>
-  <div class="card mb-4">
-    <div class="card-header">
+  <div class="card mb-4" id="b2SummaryCard">
+    <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
       <h5 class="mb-0">Hasil Assessment Kelayakan (Form B2)</h5>
+      <button type="button" class="btn btn-label-primary btn-sm" id="btnEditB2">
+        <i class="icon-base ti tabler-edit me-1"></i>Edit Assessment
+      </button>
     </div>
     <div class="card-body">
       <div class="row g-3 mb-3">
@@ -353,6 +357,23 @@ $statusColor = ajuan_status_color(isset($ajuan['status_ajuan']) ? (int) $ajuan['
   </div>
 <?php endif; ?>
 
+<?php if ($ajuan['jenis_ajuan'] === 'Individu'): ?>
+  <div id="b2FormWrapper" class="<?= $b2 ? 'd-none' : '' ?>">
+    <form id="formB2" action="<?= base_url('disposisi/survey/' . $ajuan['nomor_ajuan'] . '/b2') ?>" method="post">
+      <?= csrf_field() ?>
+      <?= view('disposisi/_form_b2', ['b2' => $b2]) ?>
+      <div class="mb-4">
+        <button type="submit" class="btn btn-primary">
+          <i class="icon-base ti tabler-check me-1"></i><?= $b2 ? 'Perbarui Form B2' : 'Simpan Form B2' ?>
+        </button>
+        <?php if ($b2): ?>
+          <button type="button" class="btn btn-label-secondary" id="btnBatalEditB2">Batal</button>
+        <?php endif; ?>
+      </div>
+    </form>
+  </div>
+<?php endif; ?>
+
 <?php if ($lembaga): ?>
   <div class="card mb-4">
     <div class="card-header">
@@ -384,20 +405,55 @@ $statusColor = ajuan_status_color(isset($ajuan['status_ajuan']) ? (int) $ajuan['
   </div>
 <?php endif; ?>
 
-<?= view('disposisi/_form_tinjauan', [
-  'latest'      => $latestSurvey,
-  'actionUrl'   => base_url('disposisi/survey/' . $ajuan['nomor_ajuan'] . '/store'),
-  'judulForm'   => 'Formulir Hasil Survey',
-  'judulSudah'  => 'Hasil survey sudah diisi',
-  'placeholder' => 'Tuliskan hasil survey di lokasi... Sertakan catatan penting, golongan mustahik, rekomendasi sumber dana, dan hal-hal lain yang relevan.',
-]) ?>
+<?php if ($b2BelumDiisi): ?>
+  <div class="card mb-4">
+    <div class="card-body text-body-secondary">
+      <i class="icon-base ti tabler-lock me-1"></i>Formulir Hasil Survey akan tersedia setelah Form B2 (assessment kelayakan) disimpan.
+    </div>
+  </div>
+<?php else: ?>
+  <?= view('disposisi/_form_tinjauan', [
+    'latest'      => $latestSurvey,
+    'actionUrl'   => base_url('disposisi/survey/' . $ajuan['nomor_ajuan'] . '/store'),
+    'judulForm'   => 'Formulir Hasil Survey',
+    'judulSudah'  => 'Hasil survey sudah diisi',
+    'placeholder' => 'Tuliskan hasil survey di lokasi... Sertakan catatan penting, golongan mustahik, rekomendasi sumber dana, dan hal-hal lain yang relevan.',
+  ]) ?>
+<?php endif; ?>
 
 <?= view('disposisi/_riwayat_tinjauan', ['judul' => 'Riwayat Survey', 'riwayat' => $riwayatSurvey]) ?>
 
 <?= $this->endSection() ?>
 
 <?= $this->section('pageScripts') ?>
-<?= view('disposisi/_form_tinjauan_script', [
-  'placeholder' => 'Tuliskan hasil survey di lokasi... Sertakan catatan penting, golongan mustahik, rekomendasi sumber dana, dan hal-hal lain yang relevan.',
-]) ?>
+<?php if (!$b2BelumDiisi): ?>
+  <?= view('disposisi/_form_tinjauan_script', [
+    'placeholder' => 'Tuliskan hasil survey di lokasi... Sertakan catatan penting, golongan mustahik, rekomendasi sumber dana, dan hal-hal lain yang relevan.',
+  ]) ?>
+<?php endif; ?>
+<script>
+  (function () {
+    var ringkasan = document.getElementById('b2SummaryCard');
+    var wrapper = document.getElementById('b2FormWrapper');
+    var btnEdit = document.getElementById('btnEditB2');
+    var btnBatal = document.getElementById('btnBatalEditB2');
+
+    if (btnEdit) {
+      btnEdit.addEventListener('click', function () {
+        ringkasan.classList.add('d-none');
+        wrapper.classList.remove('d-none');
+        wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+
+    if (btnBatal) {
+      btnBatal.addEventListener('click', function () {
+        // Discard unsaved edits by re-applying the saved answers.
+        if (window.isiFormB2) window.isiFormB2();
+        wrapper.classList.add('d-none');
+        ringkasan.classList.remove('d-none');
+      });
+    }
+  })();
+</script>
 <?= $this->endSection() ?>

@@ -39,7 +39,7 @@ class FormB2Model extends Model
 
     /**
      * Score -> answer text, frozen as of the options in
-     * pengajuan/_form_b2.php today - used ONLY as a display fallback for
+     * disposisi/_form_b2.php today - used ONLY as a display fallback for
      * ajuan submitted before the "<key>_opsi" columns existed (which have
      * a score saved but no stored answer text). New submissions always use
      * their own stored _opsi text instead of this table, so it does not
@@ -124,6 +124,37 @@ class FormB2Model extends Model
         }
 
         return ['total_skor' => $total, 'kategori_kelayakan' => $kategori];
+    }
+
+    /**
+     * Maps a saved tr_form_b2 row back to disposisi/_form_b2.php's b2_*
+     * field names and values, for pre-filling the form when the Surveyor
+     * edits an existing assessment. Question selects use the same
+     * "score|label" value their <option>s carry; the label comes from the
+     * stored _opsi text, falling back to SKOR_KE_LABEL_HISTORIS for older
+     * rows. A question with neither (e.g. legacy q32, whose score is
+     * ambiguous) is left out so the field stays blank and must be re-picked.
+     */
+    public function nilaiForm(array $row): array
+    {
+        $nilai = [];
+
+        foreach (self::PERTANYAAN_SKOR as $key) {
+            $skor  = (int) ($row[$key] ?? 0);
+            $label = $row[$key . '_opsi'] ?? self::SKOR_KE_LABEL_HISTORIS[$key][$skor] ?? null;
+
+            if ($label !== null) {
+                $nilai['b2_' . $key] = $skor . '|' . $label;
+            }
+        }
+
+        foreach ($row as $kolom => $isi) {
+            if (str_starts_with($kolom, 'elektronik_') || in_array($kolom, ['catatan_tambahan', 'bersedia_dipublikasikan'], true)) {
+                $nilai['b2_' . $kolom] = $isi === null ? '' : (string) $isi;
+            }
+        }
+
+        return $nilai;
     }
 
     /** Insert a new B2 assessment for this ajuan, or refresh the existing one (one row per nomor_ajuan). */
