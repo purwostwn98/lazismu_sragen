@@ -359,8 +359,11 @@ $statusColor = ajuan_status_color(isset($ajuan['status_ajuan']) ? (int) $ajuan['
 
 <?php if ($lembaga): ?>
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header d-flex align-items-center justify-content-between">
       <h5 class="mb-0">Data Lembaga</h5>
+      <a href="<?= base_url('ajuan/' . $ajuan['nomor_ajuan'] . '/form-b1') ?>" class="btn btn-sm btn-label-secondary">
+        <i class="icon-base ti tabler-download me-1"></i>Download Form B1
+      </a>
     </div>
     <div class="card-body">
       <div class="row">

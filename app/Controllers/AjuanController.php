@@ -1099,7 +1099,8 @@ class AjuanController extends BaseController
     /**
      * Downloadable PDF of Form B1: the calon mustahik data sheet (identity,
      * address/contact, pemohon, ajuan summary, document checklist) with
-     * signature spaces. Individu ajuan only - Lembaga has no mustahik profile.
+     * signature spaces. Covers both Individu (mustahik profile) and
+     * Lembaga (organisation profile) ajuan.
      */
     public function pdfFormB1(string $nomorAjuan)
     {
@@ -1112,9 +1113,12 @@ class AjuanController extends BaseController
         $individu = $ajuan['jenis_ajuan'] === 'Individu'
             ? $this->individuModel->withMustahikLengkap()->where('tr_individu.nomor_ajuan', $nomorAjuan)->first()
             : null;
+        $lembaga = $ajuan['jenis_ajuan'] === 'Lembaga'
+            ? $this->lembagaModel->withLembaga()->where('tr_lembaga.nomor_ajuan', $nomorAjuan)->first()
+            : null;
 
-        if (!$individu) {
-            session()->setFlashdata('gagal', 'Form B1 hanya tersedia untuk ajuan Individu.');
+        if (!$individu && !$lembaga) {
+            session()->setFlashdata('gagal', 'Data mustahik untuk ajuan ini belum tersedia, Form B1 tidak dapat dibuat.');
 
             return redirect()->to(base_url('ajuan/' . $nomorAjuan));
         }
@@ -1122,6 +1126,7 @@ class AjuanController extends BaseController
         $html = view('ajuan/pdf/form_b1', [
             'ajuan'    => $ajuan,
             'individu' => $individu,
+            'lembaga'  => $lembaga,
         ]);
 
         $pdf = new TCPDF('P', PDF_UNIT, 'A4', true, 'UTF-8', false);
