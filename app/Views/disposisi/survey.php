@@ -266,9 +266,14 @@ $statusColor = ajuan_status_color(isset($ajuan['status_ajuan']) ? (int) $ajuan['
   <div class="card mb-4" id="b2SummaryCard">
     <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
       <h5 class="mb-0">Hasil Assessment Kelayakan (Form B2)</h5>
-      <button type="button" class="btn btn-label-primary btn-sm" id="btnEditB2">
-        <i class="icon-base ti tabler-edit me-1"></i>Edit Assessment
-      </button>
+      <div class="d-flex gap-2">
+        <a href="<?= base_url('ajuan/' . $ajuan['nomor_ajuan'] . '/form-b2') ?>" class="btn btn-label-secondary btn-sm">
+          <i class="icon-base ti tabler-download me-1"></i>Download Form B2
+        </a>
+        <button type="button" class="btn btn-label-primary btn-sm" id="btnEditB2">
+          <i class="icon-base ti tabler-edit me-1"></i>Edit Assessment
+        </button>
+      </div>
     </div>
     <div class="card-body">
       <div class="row g-3 mb-3">

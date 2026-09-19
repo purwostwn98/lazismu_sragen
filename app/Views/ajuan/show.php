@@ -280,8 +280,11 @@ $statusLabels = array_column($statusList, 'keterangan_status', 'id_status');
         ];
         ?>
         <div class="card mb-4">
-          <div class="card-header">
+          <div class="card-header d-flex align-items-center justify-content-between">
             <h5 class="mb-0">Hasil Assessment Kelayakan (Form B2)</h5>
+            <a href="<?= base_url('ajuan/' . $ajuan['nomor_ajuan'] . '/form-b2') ?>" class="btn btn-sm btn-label-secondary">
+              <i class="icon-base ti tabler-download me-1"></i>Download Form B2
+            </a>
           </div>
           <div class="card-body">
             <div class="row g-3 mb-3">

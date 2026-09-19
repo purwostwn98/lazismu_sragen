@@ -85,6 +85,42 @@ class FormB2Model extends Model
         'q31_aset_bergerak'            => [5 => 'Tidak punya', 4 => 'Sepeda', 2 => 'Motor', 1 => 'Mobil'],
     ];
 
+    /** Question key => the label each question carries on the assessment form (see disposisi/_form_b2.php). */
+    public const LABEL_PERTANYAAN = [
+        'q1_tanggungan_keluarga' => 'Jumlah Tanggungan Keluarga',
+        'q2_anak_sekolah' => 'Jumlah Anak yang Masih Sekolah',
+        'q3_anak_putus_sekolah' => 'Jumlah Anak yang Putus Sekolah',
+        'q4_pengeluaran_bulanan' => 'Jumlah Pengeluaran Bulanan',
+        'q5_obat_rutin' => 'Biaya Obat Rutin Anggota Keluarga yang Sakit',
+        'q6_biaya_pendidikan' => 'Biaya Pendidikan yang Ditanggung',
+        'q7_hutang_berjalan' => 'Hutang Berjalan',
+        'q8_keperluan_hutang' => 'Keperluan Hutang',
+        'q9_pekerjaan_kepala_keluarga' => 'Pekerjaan Kepala Keluarga',
+        'q10_merokok' => 'Merokok',
+        'q11_pekerjaan_pasangan' => 'Pekerjaan Suami/Istri',
+        'q12_usia_mustahik' => 'Usia Mustahik',
+        'q13_kondisi_kepala_keluarga' => 'Kondisi Kesehatan Kepala Keluarga',
+        'q14_kepemilikan_rumah' => 'Kepemilikan Rumah',
+        'q15_luas_rumah' => 'Luas Rumah',
+        'q16_dinding_rumah' => 'Dinding Rumah',
+        'q17_lantai' => 'Lantai',
+        'q18_atap' => 'Atap',
+        'q19_sumber_air_minum' => 'Sumber Air Minum',
+        'q20_mck' => 'MCK',
+        'q21_penerangan' => 'Penerangan',
+        'q22_daya_terpasang' => 'Daya Terpasang',
+        'q23_kelayakan_tidur' => 'Kelayakan Tidur',
+        'q24_makan_perhari' => 'Jumlah Makan Per Hari',
+        'q25_konsumsi_ayam' => 'Konsumsi Ayam',
+        'q26_konsumsi_daging' => 'Konsumsi Daging',
+        'q27_konsumsi_susu' => 'Konsumsi Susu',
+        'q28_belanja_harian' => 'Belanja Harian',
+        'q29_aset_tidak_bergerak' => 'Aset Tidak Bergerak (Sawah/Pekarangan)',
+        'q30_barang_berharga' => 'Barang Berharga/Benda Antik',
+        'q31_aset_bergerak' => 'Aset Bergerak',
+        'q32_bantuan_lembaga_lain' => 'Sedang Menerima Bantuan Lain',
+    ];
+
     public function __construct()
     {
         parent::__construct();
@@ -124,6 +160,18 @@ class FormB2Model extends Model
         }
 
         return ['total_skor' => $total, 'kategori_kelayakan' => $kategori];
+    }
+
+    /**
+     * The answer text for one question of a saved row: the stored "<key>_opsi"
+     * label, else the frozen historical score->label lookup (rows saved
+     * before _opsi existed), else the bare score as a last resort.
+     */
+    public function jawabanLabel(array $row, string $key): string
+    {
+        $skor = (int) ($row[$key] ?? 0);
+
+        return $row[$key . '_opsi'] ?? self::SKOR_KE_LABEL_HISTORIS[$key][$skor] ?? ('Skor ' . $skor);
     }
 
     /**

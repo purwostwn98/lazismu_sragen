@@ -1148,6 +1148,56 @@ class AjuanController extends BaseController
             ->setBody($pdf->Output('Form-B1-' . $nomorAjuan . '.pdf', 'S'));
     }
 
+    /**
+     * Downloadable PDF of Form B2 (the calon mustahik eligibility
+     * assessment): every question with the answer picked and its score, the
+     * electronics list, notes, total score/kategori and signature spaces.
+     * Individu ajuan only, and only once the Surveyor has filled it in.
+     */
+    public function pdfFormB2(string $nomorAjuan)
+    {
+        $ajuan = $this->ajuanModel->withRelasi()->where('tr_ajuan.nomor_ajuan', $nomorAjuan)->first();
+
+        if (!$ajuan) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $individu = $ajuan['jenis_ajuan'] === 'Individu'
+            ? $this->individuModel->withMustahikLengkap()->where('tr_individu.nomor_ajuan', $nomorAjuan)->first()
+            : null;
+        $b2 = $individu ? (new FormB2Model())->where('nomor_ajuan', $nomorAjuan)->first() : null;
+
+        if (!$individu || !$b2) {
+            session()->setFlashdata('gagal', !$individu ? 'Form B2 hanya tersedia untuk ajuan Individu.' : 'Form B2 belum diisi oleh surveyor.');
+
+            return redirect()->to(base_url('ajuan/' . $nomorAjuan));
+        }
+
+        $html = view('ajuan/pdf/form_b2', [
+            'ajuan'    => $ajuan,
+            'individu' => $individu,
+            'b2'       => $b2,
+        ]);
+
+        $pdf = new TCPDF('P', PDF_UNIT, 'A4', true, 'UTF-8', false);
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('Lazismu Sragen');
+        $pdf->SetTitle('Form B2 ' . $nomorAjuan);
+        $pdf->SetSubject('Form B2 - Survey Calon Mustahik ' . $nomorAjuan);
+        $pdf->SetMargins(PDF_MARGIN_LEFT, 10, PDF_MARGIN_RIGHT);
+        $pdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->AddPage();
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        return $this->response
+            ->setContentType('application/pdf')
+            ->setHeader('Content-Disposition', 'attachment; filename="Form-B2-' . $nomorAjuan . '.pdf"')
+            ->setBody($pdf->Output('Form-B2-' . $nomorAjuan . '.pdf', 'S'));
+    }
+
     /** Streams the mustahik's foto_ktp/foto_kk inline so admins can view it in a new tab. */
     public function dokumenMustahik(string $nomorAjuan, string $jenis)
     {
