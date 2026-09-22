@@ -871,11 +871,11 @@ $totalProgram  = $totalProgram ?? 0;
             </div>
             <div class="lp-cta-info">
               <i class="icon-base ti tabler-phone"></i>
-              <span>0851-0000-0098</span>
+              <span>+62 813-9355-4554</span>
             </div>
           </div>
           <div class="col-lg-4 lp-cta-content text-lg-end">
-            <a href="tel:+6285100000098" class="btn btn-light fw-semibold">
+            <a href="tel:+6281393554554" class="btn btn-light fw-semibold">
               <i class="icon-base ti tabler-phone me-1"></i> Hubungi Kami
             </a>
           </div>
@@ -923,7 +923,7 @@ $totalProgram  = $totalProgram ?? 0;
             </div>
             <div class="d-flex gap-2">
               <i class="icon-base ti tabler-phone mt-1"></i>
-              <span>0851-0000-0098</span>
+              <span>+62 813-9355-4554</span>
             </div>
           </div>
         </div>
