@@ -7,6 +7,7 @@ use App\Models\AjuanModel;
 use App\Models\BentukPenyerahanModel;
 use App\Models\BeritaAcaraModel;
 use App\Models\DelegasiStModel;
+use App\Models\DisposisiModel;
 use App\Models\DokumentasiModel;
 use App\Models\FormB2Model;
 use App\Models\FormB3Model;
@@ -402,6 +403,29 @@ class AjuanController extends BaseController
             ? (new FormB2Model())->where('nomor_ajuan', $nomorAjuan)->first()
             : null;
 
+        // Latest result per disposisi stage (Individu and Lembaga both go
+        // through this workflow - only Form B2 above is Individu-only), read
+        // the same way DisposisiController::findDisposisi() does, rendered
+        // with the same read-only disposisi/_hasil_card partial those pages
+        // already use to show a stage its predecessors' results.
+        $disposisiModel = new DisposisiModel();
+        $hasilPerTahap  = static fn (string $oleh) => $disposisiModel->where('nomor_ajuan', $nomorAjuan)->where('oleh', $oleh)->orderBy('created_at', 'DESC')->first();
+
+        $hasilDisposisi = [
+            'survey'  => $hasilPerTahap('Surveyor'),
+            'kadiv'   => $hasilPerTahap('Kepala Divisi Program'),
+            'manager' => $hasilPerTahap('Manager'),
+        ];
+        // Badan Pengurus is skipped entirely for smaller ajuan (see
+        // DisposisiController::AMBANG_BADAN_PENGURUS, this controller's own
+        // 5-juta constant reused rather than adding a second one for the
+        // same figure) - the key itself is left out so the view can hide
+        // that card outright instead of showing an irrelevant "belum ada
+        // hasil".
+        if ((float) $ajuan['nilai_diajukan'] > self::AMBANG_C1_BESAR) {
+            $hasilDisposisi['badanPengurus'] = $hasilPerTahap('Badan Pengurus');
+        }
+
         $data = [
             'title'       => 'Detail Ajuan ' . $nomorAjuan,
             'activeMenu'  => $activeMenu,
@@ -415,6 +439,7 @@ class AjuanController extends BaseController
             'b3'          => $b3,
             'b3Initial'   => $b3Initial,
             'b2'          => $b2,
+            'hasilDisposisi'      => $hasilDisposisi,
             'kategoriPenerima'    => $this->kategoriPenerimaModel->orderBy('id_dana_dari', 'ASC')->findAll(),
             'bentukPenyerahan'    => $this->bentukPenyerahanModel->orderBy('id_bentuk_penyerahan', 'ASC')->findAll(),
             'pilarList'           => (new PilarModel())->orderBy('nama_pilar', 'ASC')->findAll(),

@@ -583,6 +583,18 @@ $statusLabels = array_column($statusList, 'keterangan_status', 'id_status');
   </div>
 </div>
 
+<?php $hasilDisposisi = $hasilDisposisi ?? []; ?>
+<div class="row">
+  <div class="col-12">
+    <?= view('disposisi/_hasil_card', ['judul' => 'Hasil Survey', 'data' => $hasilDisposisi['survey'] ?? null]) ?>
+    <?= view('disposisi/_hasil_card', ['judul' => 'Hasil Tinjauan Kepala Divisi Program', 'data' => $hasilDisposisi['kadiv'] ?? null]) ?>
+    <?= view('disposisi/_hasil_card', ['judul' => 'Hasil Tinjauan Manager', 'data' => $hasilDisposisi['manager'] ?? null]) ?>
+    <?php if (array_key_exists('badanPengurus', $hasilDisposisi)): ?>
+      <?= view('disposisi/_hasil_card', ['judul' => 'Hasil Tinjauan Badan Pengurus', 'data' => $hasilDisposisi['badanPengurus']]) ?>
+    <?php endif; ?>
+  </div>
+</div>
+
 <div class="row">
   <div class="col-12">
     <!-- Form B3 -->
