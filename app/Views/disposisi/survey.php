@@ -73,9 +73,14 @@ $statusColor = ajuan_status_color(isset($ajuan['status_ajuan']) ? (int) $ajuan['
         </p>
       </div>
     </div>
-    <a href="<?= base_url('disposisi/surveyor') ?>" class="btn btn-label-secondary btn-sm">
-      <i class="icon-base ti tabler-arrow-left me-1"></i>Kembali
-    </a>
+    <div class="d-flex gap-2">
+      <a href="<?= base_url('ajuan/' . $ajuan['nomor_ajuan'] . '/lembar-disposisi') ?>" class="btn btn-label-secondary btn-sm">
+        <i class="icon-base ti tabler-printer me-1"></i>Cetak Lembar Disposisi
+      </a>
+      <a href="<?= base_url('disposisi/surveyor') ?>" class="btn btn-label-secondary btn-sm">
+        <i class="icon-base ti tabler-arrow-left me-1"></i>Kembali
+      </a>
+    </div>
   </div>
 </div>
 

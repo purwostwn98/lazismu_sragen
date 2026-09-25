@@ -1223,6 +1223,82 @@ class AjuanController extends BaseController
             ->setBody($pdf->Output('Form-B2-' . $nomorAjuan . '.pdf', 'S'));
     }
 
+    /**
+     * Printable "Lembar Disposisi" routing slip: the identity header
+     * (nomor, pengirim, jenis/pilar, tanggal, kegiatan), a signature box
+     * per disposisi stage (Front Office/Program/Survey/Direktur/Pengurus -
+     * paper-form terms for tgl_diajukan and the Kepala Divisi Program/
+     * Surveyor/Manager/Badan Pengurus stages) dated from any real result
+     * already on file, every stage's deskripsi + rekomendasi under Catatan,
+     * and an ACC/DI TOLAK mark from the single most recent result overall.
+     * Blank paper-only sections (Penyelesaian, Segera/Biasa, the physical
+     * signatures themselves) are left for hand-filling, same as every
+     * other printable document in this app.
+     */
+    public function pdfLembarDisposisi(string $nomorAjuan)
+    {
+        $ajuan = $this->ajuanModel->withRelasi()->where('tr_ajuan.nomor_ajuan', $nomorAjuan)->first();
+
+        if (!$ajuan) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $namaPilar = $ajuan['id_kategori_program']
+            ? (new KategoriProgramModel())
+                ->select('dt_pilar.nama_pilar')
+                ->join('dt_pilar', 'dt_pilar.id_pilar = ad_kategori_program.id_pilar')
+                ->find($ajuan['id_kategori_program'])['nama_pilar'] ?? null
+            : null;
+
+        // Latest result per stage, same lookup as the ajuan/show.php
+        // disposisi section - keyed by the paper form's own box label this
+        // time, since that's what the view renders.
+        $disposisiModel = new DisposisiModel();
+        $hasilPerTahap  = [];
+        foreach (['Front Office' => null, 'Program' => 'Kepala Divisi Program', 'Survey' => 'Surveyor', 'Direktur' => 'Manager', 'Pengurus' => 'Badan Pengurus'] as $kotak => $oleh) {
+            $hasilPerTahap[$kotak] = $oleh ? $disposisiModel->where('nomor_ajuan', $nomorAjuan)->where('oleh', $oleh)->orderBy('created_at', 'DESC')->first() : null;
+        }
+
+        // The single most recently recorded result across every stage - "the
+        // ajuan's current standing recommendation" - decides the ACC/DI
+        // TOLAK mark. Catatan below lists every stage's own result, not
+        // just this one.
+        $terkini = null;
+        foreach ($hasilPerTahap as $hasil) {
+            // updated_at, not created_at, so a stage that gets edited later
+            // (e.g. a recommendation corrected) still wins over a stage
+            // reviewed more recently but never touched again.
+            if ($hasil && (!$terkini || $hasil['updated_at'] > $terkini['updated_at'])) {
+                $terkini = $hasil;
+            }
+        }
+
+        $html = view('ajuan/pdf/lembar_disposisi', [
+            'ajuan'         => $ajuan,
+            'namaPilar'     => $namaPilar,
+            'hasilPerTahap' => $hasilPerTahap,
+            'terkini'       => $terkini,
+        ]);
+
+        $pdf = new TCPDF('P', PDF_UNIT, 'A4', true, 'UTF-8', false);
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('Lazismu Sragen');
+        $pdf->SetTitle('Lembar Disposisi ' . $nomorAjuan);
+        $pdf->SetSubject('Lembar Disposisi ' . $nomorAjuan);
+        $pdf->SetMargins(PDF_MARGIN_LEFT, 10, PDF_MARGIN_RIGHT);
+        $pdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->AddPage();
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        return $this->response
+            ->setContentType('application/pdf')
+            ->setHeader('Content-Disposition', 'attachment; filename="Lembar-Disposisi-' . $nomorAjuan . '.pdf"')
+            ->setBody($pdf->Output('Lembar-Disposisi-' . $nomorAjuan . '.pdf', 'S'));
+    }
+
     /** Streams the mustahik's foto_ktp/foto_kk inline so admins can view it in a new tab. */
     public function dokumenMustahik(string $nomorAjuan, string $jenis)
     {
