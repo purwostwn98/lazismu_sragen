@@ -36,12 +36,10 @@ class AjuanModel extends Model
     {
         $jenisKode = ($data['jenis_ajuan'] ?? '') === 'Lembaga' ? '02' : '01';
 
-        // The app's own timezone is UTC (see Config\App::$appTimezone), but
-        // this id's date is meant to read as the real Indonesian calendar
-        // day its daily counter resets on, so it's computed in Asia/Jakarta
-        // here specifically rather than changing the app's timezone.
-        $tanggal = (new \DateTime('now', new \DateTimeZone('Asia/Jakarta')))->format('Ymd');
-        $prefix  = $jenisKode . $tanggal;
+        // The app runs on Asia/Jakarta (see Config\App::$appTimezone), so
+        // this is already the real Indonesian calendar day the daily
+        // counter resets on.
+        $prefix = $jenisKode . date('Ymd');
 
         // Starting guess from today's count so far, then walked forward
         // (and re-checked against the table) until a free number is found -
