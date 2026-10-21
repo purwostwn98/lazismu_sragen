@@ -18,14 +18,54 @@ class AjuanModel extends Model
     protected $updatedField  = 'last_updated_at';
 
     /**
-     * Creates a new Ajuan with a unique 8-digit nomor_ajuan and the initial
-     * "Diajukan" status, matching lazismu_reborn's registration flow.
+     * Creates a new Ajuan with the initial "Diajukan" status and a
+     * nomor_ajuan in "JJYYYYMMDDNNN" form (13 chars):
+     *   - JJ    : "01" Individu, "02" Lembaga.
+     *   - YYYYMMDD : today's date.
+     *   - NNN  : this jenis's running count for today, "001"-"999" -
+     *     Individu and Lembaga each keep their own daily count, so both
+     *     can have a "001" on the same day.
+     *
+     * Ajuan saved before this format existed keep their old 8-digit random
+     * nomor_ajuan untouched - this method only runs for new ajuan, never to
+     * rewrite existing rows. Both lengths coexist fine since nomor_ajuan is
+     * only ever compared/stored as an opaque string everywhere in the app,
+     * never parsed or cast to a number.
      */
     public function simpan(array $data)
     {
-        $noAjuan = (string) random_int(10000000, 99999999);
-        while ($this->where('nomor_ajuan', $noAjuan)->countAllResults() > 0) {
-            $noAjuan = (string) random_int(10000000, 99999999);
+        $jenisKode = ($data['jenis_ajuan'] ?? '') === 'Lembaga' ? '02' : '01';
+
+        // The app's own timezone is UTC (see Config\App::$appTimezone), but
+        // this id's date is meant to read as the real Indonesian calendar
+        // day its daily counter resets on, so it's computed in Asia/Jakarta
+        // here specifically rather than changing the app's timezone.
+        $tanggal = (new \DateTime('now', new \DateTimeZone('Asia/Jakarta')))->format('Ymd');
+        $prefix  = $jenisKode . $tanggal;
+
+        // Starting guess from today's count so far, then walked forward
+        // (and re-checked against the table) until a free number is found -
+        // self-corrects even if the count undershoots (e.g. a past entry
+        // was deleted), and the table's UNIQUE KEY is the final backstop
+        // against ever inserting a duplicate.
+        $urutan  = $this->like('nomor_ajuan', $prefix, 'after')->countAllResults() + 1;
+        $noAjuan = null;
+
+        while ($urutan <= 999) {
+            $kandidat = $prefix . str_pad((string) $urutan, 3, '0', STR_PAD_LEFT);
+
+            if ($this->where('nomor_ajuan', $kandidat)->countAllResults() === 0) {
+                $noAjuan = $kandidat;
+                break;
+            }
+
+            $urutan++;
+        }
+
+        // 999 ajuan of the same jenis in one day has never happened here;
+        // fail cleanly rather than silently invent a 14th digit.
+        if ($noAjuan === null) {
+            return false;
         }
 
         $data['nomor_ajuan']  = $noAjuan;

@@ -26,7 +26,7 @@
           </div>
           <div class="mb-4">
             <label for="nomor_ajuan" class="form-label">Nomor Ajuan</label>
-            <input type="text" class="form-control" id="nomor_ajuan" name="nomor_ajuan" maxlength="8" required />
+            <input type="text" class="form-control" id="nomor_ajuan" name="nomor_ajuan" maxlength="13" required />
           </div>
           <button type="submit" class="btn btn-primary d-grid w-100">Cek Status</button>
         </form>
