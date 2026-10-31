@@ -408,19 +408,27 @@ $penghasilan = $penghasilan ?? [];
     var jenisLembaga = document.getElementById('jenisLembaga');
     var blokIndividu = document.getElementById('blokIndividu');
     var blokLembaga = document.getElementById('blokLembaga');
+    // Nomor Legalitas is required, but only while #blokLembaga is actually
+    // visible - a hidden required field silently blocks the whole submit
+    // with no visible error (same bug class as Form B2's required selects
+    // used to hit inside #blokIndividu), so required must follow visibility.
+    var nomorLembaga = document.getElementById('nomorLembaga');
 
     function toggleBlok() {
       if (jenisIndividu.checked) {
         blokIndividu.classList.remove('d-none');
         blokLembaga.classList.add('d-none');
+        nomorLembaga.required = false;
       } else {
         blokIndividu.classList.add('d-none');
         blokLembaga.classList.remove('d-none');
+        nomorLembaga.required = true;
       }
     }
 
     jenisIndividu.addEventListener('change', toggleBlok);
     jenisLembaga.addEventListener('change', toggleBlok);
+    toggleBlok();
 
     var isInternal = document.getElementById('isInternal');
     var blokMemo = document.getElementById('blokMemo');

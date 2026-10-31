@@ -225,6 +225,15 @@ class PengajuanController extends BaseController
             'file_proposal'       => ['label' => 'Proposal', 'rules' => 'uploaded[file_proposal]', 'errors' => ['uploaded' => '{field} wajib diunggah, dan harus memuat seluruh syarat program yang dipilih']],
         ];
 
+        // Required server-side too (not just the form's required attribute)
+        // so a blank Nomor Legalitas can never reach MasterLembagaModel::
+        // upsert() - which keys on it, so a blank value from more than one
+        // ajuan silently overwrites one shared "no legalitas" row, making
+        // every such ajuan show whichever one of them was submitted last.
+        if ($this->request->getPost('jenis_ajuan') === 'Lembaga') {
+            $valid['nomor_lembaga'] = ['label' => 'Nomor Legalitas Lembaga', 'rules' => 'required', 'errors' => ['required' => '{field} wajib diisi']];
+        }
+
         if (!$this->validate($valid)) {
             session()->setFlashdata('gagal', implode(' ', $this->validator->getErrors()));
 

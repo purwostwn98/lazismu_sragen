@@ -95,6 +95,12 @@ $tanggal = $tgl[2] . ' ' . $bulan[(int) $tgl[1]] . ' ' . $tgl[0] . ' ' . ($time[
                 <td>:</td>
                 <td><?= esc($lembaga['nomor_lembaga']) ?></td>
             </tr>
+        <?php elseif ($ajuan['jenis_ajuan'] === 'Lembaga'): ?>
+            <tr>
+                <td>Data Lembaga</td>
+                <td>:</td>
+                <td>Belum lengkap (Nomor Legalitas kosong saat diajukan)</td>
+            </tr>
         <?php endif; ?>
         <tr>
             <td>Kegiatan Bantuan</td>

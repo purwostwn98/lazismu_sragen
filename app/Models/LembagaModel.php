@@ -16,6 +16,17 @@ class LembagaModel extends Model
      * this pulls it in so callers get the same shape as before normalization.
      * alamat_lembaga is kept as an explicit alias since existing callers
      * (PDF exports, disposisi views) already read $lembaga['alamat_lembaga'].
+     *
+     * The "AND tr_lembaga.nomor_lembaga != ''" guard matters: nomor_legalitas
+     * is UNIQUE on ms_lembaga, so an ajuan submitted with a blank Nomor
+     * Legalitas (the form didn't require it before) would otherwise match
+     * whichever ms_lembaga row also has a blank nomor_legalitas - showing
+     * one ajuan's lembaga data on a completely different ajuan. New
+     * submissions can't produce this anymore (Nomor Legalitas is required
+     * now), but old ones already in tr_lembaga still have a blank value, so
+     * this keeps the join from ever matching those to the wrong row -
+     * callers get null (already handled everywhere via "? ...->first() :
+     * null") instead of someone else's lembaga.
      */
     public function withLembaga()
     {
@@ -25,7 +36,7 @@ class LembagaModel extends Model
                 dt_provinsi.nama_provinsi, dt_kabupaten.nama_kabupaten,
                 dt_kecamatan.nama_kecamatan, dt_kelurahan.nama_kelurahan
             ')
-            ->join('ms_lembaga', 'ms_lembaga.nomor_legalitas = tr_lembaga.nomor_lembaga')
+            ->join('ms_lembaga', "ms_lembaga.nomor_legalitas = tr_lembaga.nomor_lembaga AND tr_lembaga.nomor_lembaga != ''")
             ->join('dt_provinsi', 'dt_provinsi.id_provinsi = ms_lembaga.provinsi', 'left')
             ->join('dt_kabupaten', 'dt_kabupaten.id_kabupaten = ms_lembaga.kabupaten', 'left')
             ->join('dt_kecamatan', 'dt_kecamatan.id_kecamatan = ms_lembaga.kecamatan', 'left')

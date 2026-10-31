@@ -206,6 +206,15 @@ class AjuanController extends BaseController
             'file_proposal'       => ['label' => 'Proposal', 'rules' => 'uploaded[file_proposal]', 'errors' => ['uploaded' => '{field} wajib diunggah, dan harus memuat seluruh syarat program yang dipilih']],
         ];
 
+        // Required server-side too (not just the form's required attribute)
+        // so a blank Nomor Legalitas can never reach MasterLembagaModel::
+        // upsert() - which keys on it, so a blank value from more than one
+        // ajuan silently overwrites one shared "no legalitas" row, making
+        // every such ajuan show whichever one of them was submitted last.
+        if ($this->request->getPost('jenis_ajuan') === 'Lembaga') {
+            $valid['nomor_lembaga'] = ['label' => 'Nomor Legalitas Lembaga', 'rules' => 'required', 'errors' => ['required' => '{field} wajib diisi']];
+        }
+
         if (!$this->validate($valid)) {
             session()->setFlashdata('gagal', implode(' ', $this->validator->getErrors()));
 
@@ -1143,7 +1152,13 @@ class AjuanController extends BaseController
             : null;
 
         if (!$individu && !$lembaga) {
-            session()->setFlashdata('gagal', 'Data mustahik untuk ajuan ini belum tersedia, Form B1 tidak dapat dibuat.');
+            // For Lembaga this also covers a blank Nomor Legalitas (see
+            // LembagaModel::withLembaga()) - there's no reliable lembaga
+            // data to put in the PDF, not that nothing was filled in at all.
+            $pesan = $ajuan['jenis_ajuan'] === 'Lembaga'
+                ? 'Data lembaga untuk ajuan ini belum lengkap (Nomor Legalitas kosong), Form B1 tidak dapat dibuat.'
+                : 'Data mustahik untuk ajuan ini belum tersedia, Form B1 tidak dapat dibuat.';
+            session()->setFlashdata('gagal', $pesan);
 
             return redirect()->to(base_url('ajuan/' . $nomorAjuan));
         }

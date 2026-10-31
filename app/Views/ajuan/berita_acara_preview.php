@@ -127,6 +127,12 @@ $tglPenyerahan = explode('-', $beritaAcara['tanggal_penyerahan']);
             <td class="text-body-secondary">:</td>
             <td><strong><?= esc($lembaga['nomor_lembaga']) ?></strong></td>
           </tr>
+        <?php elseif ($ajuan['jenis_ajuan'] === 'Lembaga'): ?>
+          <tr>
+            <td class="text-body-secondary">Data Lembaga</td>
+            <td class="text-body-secondary">:</td>
+            <td class="text-warning"><strong>Belum lengkap (Nomor Legalitas kosong saat diajukan)</strong></td>
+          </tr>
         <?php endif; ?>
       </tbody>
     </table>

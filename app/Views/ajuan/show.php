@@ -499,6 +499,18 @@ $statusLabels = array_column($statusList, 'keterangan_status', 'id_status');
           </div>
         </div>
       </div>
+        <?php elseif ($ajuan['jenis_ajuan'] === 'Lembaga'): ?>
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Data Lembaga</h5>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-warning mb-0">
+            <i class="icon-base ti tabler-alert-triangle me-1"></i>
+            Data lembaga untuk ajuan ini belum lengkap (Nomor Legalitas kosong saat diajukan), sehingga belum bisa ditampilkan dengan andal.
+          </div>
+        </div>
+      </div>
     <?php endif; ?>
   </div>
 
