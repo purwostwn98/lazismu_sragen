@@ -499,15 +499,142 @@ $statusLabels = array_column($statusList, 'keterangan_status', 'id_status');
           </div>
         </div>
       </div>
-        <?php elseif ($ajuan['jenis_ajuan'] === 'Lembaga'): ?>
+    <?php elseif ($ajuan['jenis_ajuan'] === 'Lembaga'): ?>
+      <?php
+      // Pre-fill from binlog-recovered data when there is any (see
+      // AjuanController::lembagaPemulihan()); staff still review it and must
+      // add the Nomor Legalitas themselves before anything is saved.
+      $lp  = $lembagaPemulihan ?? null;
+      $lpv = static fn (string $k): string => esc((string) ($lp[$k] ?? ''));
+      ?>
       <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header d-flex align-items-center justify-content-between">
           <h5 class="mb-0">Data Lembaga</h5>
+          <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#lengkapiLembagaModal">
+            <i class="icon-base ti tabler-edit me-1"></i>Lengkapi Data Lembaga
+          </button>
         </div>
         <div class="card-body">
           <div class="alert alert-warning mb-0">
             <i class="icon-base ti tabler-alert-triangle me-1"></i>
             Data lembaga untuk ajuan ini belum lengkap (Nomor Legalitas kosong saat diajukan), sehingga belum bisa ditampilkan dengan andal.
+            <?php if ($lp): ?>
+              <br>Data yang dulu diisi pemohon berhasil dipulihkan dan sudah terisi di form &mdash; periksa, lalu lengkapi Nomor Legalitasnya.
+            <?php endif; ?>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade modal-ajuan" id="lengkapiLembagaModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <form action="<?= base_url('ajuan/' . $ajuan['nomor_ajuan'] . '/lengkapi-lembaga') ?>" method="post">
+              <?= csrf_field() ?>
+              <div class="modal-header">
+                <h5 class="modal-title">Lengkapi Data Lembaga</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <?php if ($lp): ?>
+                  <div class="alert alert-info py-2">
+                    Terisi dari data yang dipulihkan (diisi pemohon saat mengajukan). Periksa kembali &mdash; beberapa pemohon mengisi nama pribadi sebagai nama lembaga.
+                  </div>
+                <?php endif; ?>
+                <div class="row">
+                  <div class="col-12 mb-3">
+                    <label class="form-label">Nomor Legalitas Lembaga (Akta/Izin Operasional/NIB) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                      <input type="text" name="nomor_lembaga" id="lkNomorLembaga" class="form-control" required />
+                      <button type="button" class="btn btn-outline-primary" id="lkBtnCek">Cek Data</button>
+                    </div>
+                    <small class="text-body-secondary">Kalau lembaga sudah terdaftar, klik "Cek Data" untuk memakai data yang tersimpan.</small>
+                    <div id="lkCekResult" class="mt-2"></div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Nama Lembaga <span class="text-danger">*</span></label>
+                    <input type="text" name="nama_lembaga" id="lkNamaLembaga" class="form-control" value="<?= $lpv('nama_lembaga') ?>" required />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Bidang</label>
+                    <input type="text" name="bidang_lembaga" id="lkBidang" class="form-control" value="<?= $lpv('bidang') ?>" />
+                  </div>
+                  <div class="row wilayah-block mx-0 px-0"
+                    data-selected-kabupaten="<?= $lpv('kabupaten') ?>"
+                    data-selected-kecamatan="<?= $lpv('kecamatan') ?>"
+                    data-selected-kelurahan="<?= $lpv('desa') ?>">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Provinsi</label>
+                      <select name="provinsi_lembaga" class="form-select sel-provinsi">
+                        <option value="">-- Pilih Provinsi --</option>
+                        <?php foreach ($provinsi ?? [] as $p): ?>
+                          <option value="<?= $p['id_provinsi'] ?>" <?= (string) ($lp['provinsi'] ?? '') === (string) $p['id_provinsi'] ? 'selected' : '' ?>><?= esc($p['nama_provinsi']) ?></option>
+                        <?php endforeach; ?>
+                      </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Kabupaten/Kota</label>
+                      <select name="kabupaten_lembaga" class="form-select sel-kabupaten"><option value="">-- Pilih Provinsi dahulu --</option></select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Kecamatan</label>
+                      <select name="kecamatan_lembaga" class="form-select sel-kecamatan"><option value="">-- Pilih Kabupaten dahulu --</option></select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Kelurahan/Desa</label>
+                      <select name="kelurahan_lembaga" class="form-select sel-kelurahan"><option value="">-- Pilih Kecamatan dahulu --</option></select>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Dusun / Nama Jalan</label>
+                    <input type="text" name="dusun_lembaga" id="lkDusun" class="form-control" value="<?= $lpv('dusun') ?>" />
+                  </div>
+                  <div class="col-md-3 mb-3">
+                    <label class="form-label">RT</label>
+                    <input type="number" name="rt_lembaga" id="lkRt" class="form-control" min="0" value="<?= $lpv('rt') ?>" />
+                  </div>
+                  <div class="col-md-3 mb-3">
+                    <label class="form-label">RW</label>
+                    <input type="number" name="rw_lembaga" id="lkRw" class="form-control" min="0" value="<?= $lpv('rw') ?>" />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Telepon</label>
+                    <input type="text" name="telepon_lembaga" id="lkTelepon" class="form-control" value="<?= $lpv('nomor_telepon') ?>" />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email_lembaga" id="lkEmail" class="form-control" value="<?= $lpv('email') ?>" />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Website</label>
+                    <input type="text" name="website_lembaga" id="lkWebsite" class="form-control" value="<?= $lpv('website') ?>" />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Sumber Pendanaan</label>
+                    <input type="text" name="sumber_pendanaan_lembaga" id="lkSumber" class="form-control" value="<?= $lpv('sumber_pendanaan') ?>" />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Nomor Rekening</label>
+                    <input type="text" name="nomor_rekening_lembaga" id="lkRekening" class="form-control" value="<?= $lpv('nomor_rekening') ?>" />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Nama Pemilik Rekening</label>
+                    <input type="text" name="nama_pemilik_rekening_lembaga" id="lkPemilikRek" class="form-control" value="<?= $lpv('nama_pemilik_rekening') ?>" />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Nama Penanggung Jawab</label>
+                    <input type="text" name="nama_pj_lembaga" id="lkNamaPj" class="form-control" value="<?= $lpv('nama_pj') ?>" />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Jabatan Penanggung Jawab</label>
+                    <input type="text" name="jabatan_pj_lembaga" id="lkJabatanPj" class="form-control" value="<?= $lpv('jabatan_pj') ?>" />
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan Data Lembaga</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
@@ -1214,6 +1341,42 @@ $statusLabels = array_column($statusList, 'keterangan_status', 'id_status');
 
 <?= $this->section('pageScripts') ?>
 <script src="<?= base_url('assets/js/program-cascade.js') ?>"></script>
+<script src="<?= base_url('assets/js/wilayah-cascade.js') ?>"></script>
+<script>
+  // "Cek Data" inside the Lengkapi Data Lembaga modal: same lookup the
+  // Tambah Ajuan form uses, so an already-registered lembaga is reused
+  // rather than retyped.
+  (function() {
+    var btn = document.getElementById('lkBtnCek');
+    if (!btn) return;
+    var set = function(id, v) { var el = document.getElementById(id); if (el) el.value = v || ''; };
+    var box = function(kind, msg) { return '<div class="alert alert-' + kind + ' py-2 mb-0">' + msg + '</div>'; };
+
+    btn.addEventListener('click', function() {
+      var nomor = document.getElementById('lkNomorLembaga').value.trim();
+      var out = document.getElementById('lkCekResult');
+      if (!nomor) { out.innerHTML = box('warning', 'Isi nomor legalitas terlebih dahulu.'); return; }
+      var body = new URLSearchParams(); body.append('nomor_lembaga', nomor);
+      out.innerHTML = box('secondary', 'Memeriksa data&hellip;');
+      fetch(window.location.origin + '/ajuan/cek-lembaga', { method: 'POST', body: body })
+        .then(function(r) { return r.json(); })
+        .then(function(r) {
+          if (!r.found) { out.innerHTML = box('info', 'Lembaga belum terdaftar &mdash; data di bawah akan disimpan sebagai lembaga baru.'); return; }
+          var d = r.data;
+          set('lkNamaLembaga', d.nama_lembaga); set('lkBidang', d.bidang); set('lkDusun', d.dusun);
+          set('lkRt', d.rt); set('lkRw', d.rw); set('lkTelepon', d.nomor_telepon); set('lkEmail', d.email);
+          set('lkWebsite', d.website); set('lkSumber', d.sumber_pendanaan); set('lkRekening', d.nomor_rekening);
+          set('lkPemilikRek', d.nama_pemilik_rekening); set('lkNamaPj', d.nama_pj); set('lkJabatanPj', d.jabatan_pj);
+          var block = document.querySelector('#lengkapiLembagaModal .wilayah-block');
+          if (block && window.WilayahCascade) {
+            window.WilayahCascade.resolve(block, { provinsi: d.provinsi, kabupaten: d.kabupaten, kecamatan: d.kecamatan, kelurahan: d.desa });
+          }
+          out.innerHTML = box('success', 'Lembaga sudah terdaftar &mdash; datanya dipakai. Periksa sebelum menyimpan.');
+        })
+        .catch(function() { out.innerHTML = box('danger', 'Gagal memeriksa data. Coba lagi.'); });
+    });
+  })();
+</script>
 <script src="<?= base_url('assets/js/currency-format.js') ?>"></script>
 <script>
   (function() {

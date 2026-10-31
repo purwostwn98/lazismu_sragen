@@ -111,6 +111,7 @@ $routes->group('', ['filter' => 'auth'], static function (RouteCollection $route
     $routes->get('ajuan/(:segment)', 'AjuanController::show/$1');
     $routes->post('ajuan/(:segment)/status', 'AjuanController::updateStatus/$1');
     $routes->post('ajuan/(:segment)/mustahik', 'AjuanController::updateMustahik/$1');
+    $routes->post('ajuan/(:segment)/lengkapi-lembaga', 'AjuanController::lengkapiLembaga/$1');
     $routes->get('ajuan/(:segment)/mustahik/(:segment)', 'AjuanController::dokumenMustahik/$1/$2');
     $routes->get('ajuan/(:segment)/dokumen/(:segment)', 'AjuanController::dokumenAjuan/$1/$2');
     $routes->get('ajuan/(:segment)/form-b1', 'AjuanController::pdfFormB1/$1');

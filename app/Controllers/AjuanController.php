@@ -309,31 +309,7 @@ class AjuanController extends BaseController
 
             // Same idea: tr_lembaga links to ms_lembaga (nomor_lembaga is a
             // foreign key to nomor_legalitas), so upsert the master first.
-            $this->masterLembagaModel->upsert([
-                'nama_lembaga'     => $this->request->getPost('nama_lembaga'),
-                'bidang'           => $this->request->getPost('bidang_lembaga') ?: '-',
-                'nomor_legalitas'  => $nomorLembaga,
-                'alamat'           => susun_alamat_rt_rw(
-                    $this->request->getPost('dusun_lembaga'),
-                    $this->request->getPost('rt_lembaga'),
-                    $this->request->getPost('rw_lembaga')
-                ),
-                'dusun'            => $this->request->getPost('dusun_lembaga') ?: null,
-                'rt'               => $this->request->getPost('rt_lembaga') ?: null,
-                'rw'               => $this->request->getPost('rw_lembaga') ?: null,
-                'provinsi'         => $this->request->getPost('provinsi_lembaga') ?: null,
-                'kabupaten'        => $this->request->getPost('kabupaten_lembaga') ?: null,
-                'kecamatan'        => $this->request->getPost('kecamatan_lembaga') ?: null,
-                'desa'             => $this->request->getPost('kelurahan_lembaga') ?: null,
-                'nomor_telepon'    => $this->request->getPost('telepon_lembaga') ?: '-',
-                'email'            => $this->request->getPost('email_lembaga') ?: 'belum@diisi.com',
-                'website'          => $this->request->getPost('website_lembaga') ?: null,
-                'nama_pj'          => $this->request->getPost('nama_pj_lembaga') ?: '-',
-                'jabatan_pj'       => $this->request->getPost('jabatan_pj_lembaga') ?: '-',
-                'sumber_pendanaan' => $this->request->getPost('sumber_pendanaan_lembaga') ?: null,
-                'nomor_rekening'   => $this->request->getPost('nomor_rekening_lembaga') ?: null,
-                'nama_pemilik_rekening' => $this->request->getPost('nama_pemilik_rekening_lembaga') ?: null,
-            ]);
+            $this->masterLembagaModel->upsert($this->dataLembagaDariRequest($nomorLembaga));
 
             $this->lembagaModel->insert(['nomor_ajuan' => $nomorAjuan, 'nomor_lembaga' => $nomorLembaga]);
         }
@@ -449,6 +425,8 @@ class AjuanController extends BaseController
             'b3Initial'   => $b3Initial,
             'b2'          => $b2,
             'hasilDisposisi'      => $hasilDisposisi,
+            'lembagaPemulihan'    => $ajuan['jenis_ajuan'] === 'Lembaga' ? $this->lembagaPemulihan($nomorAjuan) : null,
+            'provinsi'            => (new ProvinsiModel())->orderBy('nama_provinsi', 'ASC')->findAll(),
             'kategoriPenerima'    => $this->kategoriPenerimaModel->orderBy('id_dana_dari', 'ASC')->findAll(),
             'bentukPenyerahan'    => $this->bentukPenyerahanModel->orderBy('id_bentuk_penyerahan', 'ASC')->findAll(),
             'pilarList'           => (new PilarModel())->orderBy('nama_pilar', 'ASC')->findAll(),
@@ -1312,6 +1290,129 @@ class AjuanController extends BaseController
             ->setContentType('application/pdf')
             ->setHeader('Content-Disposition', 'attachment; filename="Lembar-Disposisi-' . $nomorAjuan . '.pdf"')
             ->setBody($pdf->Output('Lembar-Disposisi-' . $nomorAjuan . '.pdf', 'S'));
+    }
+
+    /**
+     * Links a real lembaga to a Lembaga ajuan whose Nomor Legalitas was left
+     * blank when it was submitted (before that field was required - see
+     * LembagaModel::withLembaga()). Only allowed while the ajuan still has
+     * no legalitas, so it can't be used to silently re-point an ajuan that
+     * already has a proper lembaga.
+     */
+    public function lengkapiLembaga(string $nomorAjuan)
+    {
+        $ajuan = $this->ajuanModel->where('nomor_ajuan', $nomorAjuan)->first();
+
+        if (!$ajuan || $ajuan['jenis_ajuan'] !== 'Lembaga') {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $tautan = $this->lembagaModel->where('nomor_ajuan', $nomorAjuan)->first();
+
+        if ($tautan && trim((string) $tautan['nomor_lembaga']) !== '') {
+            session()->setFlashdata('gagal', 'Data lembaga ajuan ini sudah lengkap.');
+
+            return redirect()->to(base_url('ajuan/' . $nomorAjuan));
+        }
+
+        $valid = [
+            'nomor_lembaga' => ['label' => 'Nomor Legalitas Lembaga', 'rules' => 'required', 'errors' => ['required' => '{field} wajib diisi']],
+            'nama_lembaga'  => ['label' => 'Nama Lembaga', 'rules' => 'required', 'errors' => ['required' => '{field} wajib diisi']],
+        ];
+
+        if (!$this->validate($valid)) {
+            session()->setFlashdata('gagal', implode(' ', $this->validator->getErrors()));
+
+            return redirect()->to(base_url('ajuan/' . $nomorAjuan));
+        }
+
+        $nomorLembaga = strtoupper(trim((string) $this->request->getPost('nomor_lembaga')));
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        $this->masterLembagaModel->upsert($this->dataLembagaDariRequest($nomorLembaga));
+
+        if ($tautan) {
+            $this->lembagaModel->update($tautan['id_lembaga'], ['nomor_lembaga' => $nomorLembaga]);
+        } else {
+            $this->lembagaModel->insert(['nomor_ajuan' => $nomorAjuan, 'nomor_lembaga' => $nomorLembaga]);
+        }
+
+        $this->logAjuanModel->catat(
+            $nomorAjuan,
+            (int) $ajuan['status_ajuan'],
+            'Data lembaga dilengkapi (Nomor Legalitas ' . $nomorLembaga . ') oleh ' . (session()->get('nama') ?? 'admin')
+        );
+
+        $db->transComplete();
+
+        session()->setFlashdata(
+            $db->transStatus() ? 'berhasil' : 'gagal',
+            $db->transStatus() ? 'Data lembaga berhasil dilengkapi.' : 'GAGAL menyimpan data lembaga!'
+        );
+
+        return redirect()->to(base_url('ajuan/' . $nomorAjuan));
+    }
+
+    /**
+     * Lembaga data recovered from the MySQL binlog for ajuan whose shared
+     * blank-legalitas ms_lembaga row was overwritten by later submissions
+     * (one-off recovery, 31 Oct 2026). Kept outside git in
+     * writable/pemulihan/lembaga.json (it holds applicants' personal data)
+     * and only used to pre-fill the "Lengkapi Data Lembaga" form - never
+     * written anywhere until a staff member reviews it and adds the Nomor
+     * Legalitas themselves. Returns null when there's nothing recovered.
+     */
+    private function lembagaPemulihan(string $nomorAjuan): ?array
+    {
+        $file = WRITEPATH . 'pemulihan/lembaga.json';
+
+        if (!is_file($file)) {
+            return null;
+        }
+
+        foreach (json_decode((string) file_get_contents($file), true) ?: [] as $row) {
+            if (($row['nomor_ajuan'] ?? null) === $nomorAjuan) {
+                return $row;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The ms_lembaga row built from the *_lembaga fields of a submitted form -
+     * shared by store() and lengkapiLembaga() so both write a lembaga the
+     * same way.
+     */
+    private function dataLembagaDariRequest(string $nomorLembaga): array
+    {
+        return [
+            'nama_lembaga'     => $this->request->getPost('nama_lembaga'),
+            'bidang'           => $this->request->getPost('bidang_lembaga') ?: '-',
+            'nomor_legalitas'  => $nomorLembaga,
+            'alamat'           => susun_alamat_rt_rw(
+                $this->request->getPost('dusun_lembaga'),
+                $this->request->getPost('rt_lembaga'),
+                $this->request->getPost('rw_lembaga')
+            ),
+            'dusun'            => $this->request->getPost('dusun_lembaga') ?: null,
+            'rt'               => $this->request->getPost('rt_lembaga') ?: null,
+            'rw'               => $this->request->getPost('rw_lembaga') ?: null,
+            'provinsi'         => $this->request->getPost('provinsi_lembaga') ?: null,
+            'kabupaten'        => $this->request->getPost('kabupaten_lembaga') ?: null,
+            'kecamatan'        => $this->request->getPost('kecamatan_lembaga') ?: null,
+            'desa'             => $this->request->getPost('kelurahan_lembaga') ?: null,
+            'nomor_telepon'    => $this->request->getPost('telepon_lembaga') ?: '-',
+            'email'            => $this->request->getPost('email_lembaga') ?: 'belum@diisi.com',
+            'website'          => $this->request->getPost('website_lembaga') ?: null,
+            'nama_pj'          => $this->request->getPost('nama_pj_lembaga') ?: '-',
+            'jabatan_pj'       => $this->request->getPost('jabatan_pj_lembaga') ?: '-',
+            'sumber_pendanaan' => $this->request->getPost('sumber_pendanaan_lembaga') ?: null,
+            'nomor_rekening'   => $this->request->getPost('nomor_rekening_lembaga') ?: null,
+            'nama_pemilik_rekening' => $this->request->getPost('nama_pemilik_rekening_lembaga') ?: null,
+        ];
     }
 
     /** Streams the mustahik's foto_ktp/foto_kk inline so admins can view it in a new tab. */

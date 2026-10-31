@@ -66,6 +66,9 @@ Vagrantfile
 /writable/debugbar/*
 !/writable/debugbar/index.html
 
+# One-off recovered data (applicants' personal data) - never commit.
+/writable/pemulihan/*
+
 php_errors.log
 
 #-------------------------
