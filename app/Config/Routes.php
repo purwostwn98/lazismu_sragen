@@ -140,6 +140,7 @@ $routes->group('', ['filter' => 'auth'], static function (RouteCollection $route
     $routes->post('disposisi/survey/(:segment)/store', 'DisposisiController::storeSurvey/$1');
     $routes->post('disposisi/survey/(:segment)/b2', 'DisposisiController::storeB2/$1');
     $routes->get('disposisi/dokumentasi/(:num)', 'DisposisiController::fileDokumentasi/$1');
+    $routes->get('disposisi/dokumen/(:num)', 'DisposisiController::fileDokumen/$1');
     $routes->get('disposisi/kepala-divisi-program', 'DisposisiController::kepalaDivisiProgram');
     $routes->get('disposisi/kepala-divisi-program/(:segment)', 'DisposisiController::reviewKepalaDivisiProgram/$1');
     $routes->post('disposisi/kepala-divisi-program/(:segment)/store', 'DisposisiController::storeKepalaDivisiProgram/$1');

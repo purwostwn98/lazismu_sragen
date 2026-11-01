@@ -65,6 +65,40 @@ $placeholder = $placeholder ?? 'Tuliskan hasil tinjauan...';
         </div>
       </div>
 
+      <?php
+      $dokumenLain = $latest['dokumen_lain'] ?? [];
+      ?>
+      <div class="mb-3" id="dokumenLainWrapper" data-maks="5" data-maks-ukuran="1048576">
+        <label class="form-label">Dokumen Lain <span class="text-body-secondary fw-normal">(opsional)</span></label>
+
+        <?php if ($dokumenLain): ?>
+          <div class="mb-2" id="dokumenLainTersimpan">
+            <?php foreach ($dokumenLain as $d): ?>
+              <div class="d-flex align-items-center gap-2 flex-wrap mb-1 dokumen-tersimpan">
+                <a href="<?= base_url('disposisi/dokumen/' . $d['id']) ?>" target="_blank" class="btn btn-sm btn-label-secondary">
+                  <i class="icon-base ti tabler-paperclip me-1"></i><?= esc($d['nama_asli']) ?>
+                </a>
+                <?php if (!empty($d['keterangan'])): ?>
+                  <span class="text-body-secondary"><?= esc($d['keterangan']) ?></span>
+                <?php endif; ?>
+                <div class="form-check ms-auto mb-0">
+                  <input class="form-check-input cek-hapus-dokumen" type="checkbox" name="hapus_dokumen[]" value="<?= (int) $d['id'] ?>" id="hapusDok<?= (int) $d['id'] ?>" />
+                  <label class="form-check-label text-danger" for="hapusDok<?= (int) $d['id'] ?>">Hapus</label>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+
+        <div id="dokumenLainBaris"></div>
+        <button type="button" class="btn btn-sm btn-outline-primary mt-1" id="btnTambahDokumen">
+          <i class="icon-base ti tabler-plus me-1"></i>Tambah Dokumen
+        </button>
+        <div class="form-text" id="infoDokumenLain">
+          Maksimal 5 dokumen, masing-masing PDF/JPG/PNG maksimal 1 MB.
+        </div>
+      </div>
+
       <div class="mb-3">
         <label class="form-label d-block">Rekomendasi</label>
         <div class="form-check form-check-inline">

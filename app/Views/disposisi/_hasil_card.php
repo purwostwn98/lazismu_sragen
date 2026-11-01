@@ -34,6 +34,7 @@ $data  = $data ?? null;
           <i class="icon-base ti tabler-paperclip me-1"></i>Lihat Dokumentasi
         </a>
       <?php endif; ?>
+      <?= view('disposisi/_dokumen_lain', ['dokumen' => $data['dokumen_lain'] ?? []]) ?>
     <?php endif; ?>
   </div>
 </div>

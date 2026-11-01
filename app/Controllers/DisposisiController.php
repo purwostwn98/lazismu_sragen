@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Libraries\FormB2Reader;
 use App\Models\AjuanModel;
+use App\Models\DisposisiDokumenModel;
 use App\Models\DisposisiModel;
 use App\Models\FormB2Model;
 use App\Models\IndividuModel;
@@ -567,6 +568,21 @@ class DisposisiController extends BaseController
 
         $dokumentasi = $this->moveUpload('dokumentasi') ?? ($existing['dokumentasi'] ?? null);
 
+        // Extra documents: validated as a whole BEFORE anything is saved, so
+        // one bad file never leaves a half-saved result behind.
+        $dokumenModel = new DisposisiDokumenModel();
+        $dokumenAda   = $existing ? $dokumenModel->where('id_disposisi', $existing['id'])->findAll() : [];
+        $hapusIds     = array_map('intval', (array) $this->request->getPost('hapus_dokumen'));
+        $dokumenSisa  = array_values(array_filter($dokumenAda, static fn ($d) => !in_array((int) $d['id'], $hapusIds, true)));
+
+        [$dokumenBaru, $galatDokumen] = $this->bacaDokumenLain(count($dokumenSisa));
+
+        if ($galatDokumen !== []) {
+            session()->setFlashdata('gagal', implode(' ', $galatDokumen));
+
+            return redirect()->to($redirectUrl);
+        }
+
         $data = [
             'nomor_ajuan'         => $nomorAjuan,
             'deskripsi'           => $this->sanitizeDeskripsi((string) $this->request->getPost('deskripsi')),
@@ -577,9 +593,53 @@ class DisposisiController extends BaseController
             'nama_petugas'        => session()->get('nama'),
         ];
 
-        $ok = $existing
-            ? $this->disposisiModel->update($existing['id'], $data)
-            : $this->disposisiModel->insert($data) !== false;
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        if ($existing) {
+            $this->disposisiModel->update($existing['id'], $data);
+            $idDisposisi = (int) $existing['id'];
+        } else {
+            $idDisposisi = (int) $this->disposisiModel->insert($data);
+        }
+
+        // Only the documents the user ticked as removed, and only ones that
+        // really belong to this result.
+        foreach ($dokumenAda as $d) {
+            if (in_array((int) $d['id'], $hapusIds, true)) {
+                $dokumenModel->delete($d['id']);
+            }
+        }
+
+        $tersimpan = [];
+        foreach ($dokumenBaru as $d) {
+            $namaFile = $d['file']->getRandomName();
+            $d['file']->move(WRITEPATH . 'uploads/disposisi/lain', $namaFile);
+            $tersimpan[] = $namaFile;
+
+            $dokumenModel->insert([
+                'id_disposisi' => $idDisposisi,
+                'nama_file'    => $namaFile,
+                'nama_asli'    => $d['nama_asli'],
+                'keterangan'   => $d['keterangan'],
+            ]);
+        }
+
+        $db->transComplete();
+        $ok = $db->transStatus() && $idDisposisi > 0;
+
+        if (!$ok) {
+            foreach ($tersimpan as $namaFile) {
+                @unlink(WRITEPATH . 'uploads/disposisi/lain/' . $namaFile);
+            }
+        } else {
+            // Files of removed documents go once the DB change is committed.
+            foreach ($dokumenAda as $d) {
+                if (in_array((int) $d['id'], $hapusIds, true)) {
+                    @unlink(WRITEPATH . 'uploads/disposisi/lain/' . $d['nama_file']);
+                }
+            }
+        }
 
         if ($ok && $onSuccess) {
             $onSuccess($ajuan);
@@ -588,6 +648,79 @@ class DisposisiController extends BaseController
         session()->setFlashdata($ok ? 'berhasil' : 'gagal', $ok ? 'Hasil tinjauan berhasil disimpan!' : 'GAGAL menyimpan hasil tinjauan!');
 
         return redirect()->to($redirectUrl);
+    }
+
+    /**
+     * Reads the "dokumen lain" rows of the review form (parallel arrays
+     * dokumen_lain[] / keterangan_lain[], one entry per row) and checks them:
+     * at most 5 in total together with the $sudahAda already kept, each
+     * <= 1 MB and a real PDF/JPG/PNG (extension AND content type).
+     *
+     * @return array{0: array<int, array{file: UploadedFile, nama_asli: string, keterangan: ?string}>, 1: string[]}
+     */
+    private function bacaDokumenLain(int $sudahAda): array
+    {
+        $files       = $this->request->getFileMultiple('dokumen_lain') ?: [];
+        $keterangan  = (array) $this->request->getPost('keterangan_lain');
+        $baru        = [];
+        $galat       = [];
+
+        foreach ($files as $i => $file) {
+            /** @var UploadedFile $file */
+            if ($file->getError() === UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+
+            $nama = $file->getClientName();
+
+            if (!$file->isValid()) {
+                $galat[] = "Dokumen \"{$nama}\" gagal diunggah.";
+                continue;
+            }
+
+            $ext = strtolower($file->getClientExtension());
+
+            if (!isset(DisposisiDokumenModel::FORMAT[$ext]) || !in_array($file->getMimeType(), DisposisiDokumenModel::FORMAT[$ext], true)) {
+                $galat[] = "Dokumen \"{$nama}\" harus berformat PDF, JPG, atau PNG.";
+                continue;
+            }
+
+            if ($file->getSize() > DisposisiDokumenModel::MAKS_UKURAN) {
+                $galat[] = "Dokumen \"{$nama}\" melebihi 1 MB.";
+                continue;
+            }
+
+            $ket = trim((string) ($keterangan[$i] ?? ''));
+
+            if (mb_strlen($ket) > 255) {
+                $galat[] = "Keterangan dokumen \"{$nama}\" maksimal 255 karakter.";
+                continue;
+            }
+
+            $baru[] = ['file' => $file, 'nama_asli' => $nama, 'keterangan' => $ket !== '' ? $ket : null];
+        }
+
+        if ($sudahAda + count($baru) > DisposisiDokumenModel::MAKS_DOKUMEN) {
+            $galat[] = 'Dokumen lain maksimal ' . DisposisiDokumenModel::MAKS_DOKUMEN . ' per tinjauan.';
+        }
+
+        return [$baru, $galat];
+    }
+
+    /** Opens one of a disposisi result's extra documents inline. */
+    public function fileDokumen(int $id)
+    {
+        $dokumen = (new DisposisiDokumenModel())->find($id);
+        $path    = $dokumen ? WRITEPATH . 'uploads/disposisi/lain/' . $dokumen['nama_file'] : null;
+
+        if (!$dokumen || !is_file($path)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        return $this->response
+            ->setHeader('Content-Type', mime_content_type($path))
+            ->setHeader('Content-Disposition', 'inline; filename="' . preg_replace('/[^\w.\- ]/u', '_', $dokumen['nama_asli']) . '"')
+            ->setBody(file_get_contents($path));
     }
 
     /**

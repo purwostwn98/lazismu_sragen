@@ -34,6 +34,7 @@ $riwayat = $riwayat ?? [];
               <i class="icon-base ti tabler-paperclip me-1"></i>Lihat Dokumentasi
             </a>
           <?php endif; ?>
+          <?= view('disposisi/_dokumen_lain', ['dokumen' => $r['dokumen_lain'] ?? []]) ?>
         </div>
       <?php endforeach; ?>
     </div>
