@@ -155,8 +155,13 @@ class Home extends BaseController
             ->select('
                 tr_ajuan.nomor_ajuan, tr_ajuan.tgl_diajukan, tr_ajuan.jenis_ajuan,
                 tr_ajuan.nik, tr_ajuan.nilai_diajukan, tr_ajuan.nilai_disetujui, tr_ajuan.sifat_bantuan,
-                tr_pemohon.nama_pemohon,
+                tr_pemohon.nama_pemohon, tr_pemohon.telepon AS telepon_pemohon,
                 ms_individu.nama_mustahik, ms_lembaga.nama_lembaga,
+                COALESCE(ms_individu.no_handphone, ms_lembaga.nomor_telepon) AS telepon_mustahik,
+                COALESCE(ms_individu.alamat, ms_lembaga.alamat) AS alamat_mustahik,
+                COALESCE(kel_i.nama_kelurahan, kel_l.nama_kelurahan) AS kelurahan_mustahik,
+                COALESCE(kec_i.nama_kecamatan, kec_l.nama_kecamatan) AS kecamatan_mustahik,
+                COALESCE(kab_i.nama_kabupaten, kab_l.nama_kabupaten) AS kabupaten_mustahik,
                 ad_program.nama_program, ad_kategori_program.nama_kategori, dt_pilar.nama_pilar,
                 dt_status_ajuan.keterangan_status
             ')
@@ -164,7 +169,16 @@ class Home extends BaseController
             ->join('tr_individu', 'tr_individu.nomor_ajuan = tr_ajuan.nomor_ajuan', 'left')
             ->join('ms_individu', 'ms_individu.nik = tr_individu.nik', 'left')
             ->join('tr_lembaga', 'tr_lembaga.nomor_ajuan = tr_ajuan.nomor_ajuan', 'left')
-            ->join('ms_lembaga', 'ms_lembaga.nomor_legalitas = tr_lembaga.nomor_lembaga', 'left')
+            // Same blank-legalitas guard as LembagaModel::withLembaga(): an
+            // ajuan saved with an empty Nomor Legalitas must not pick up
+            // whichever ms_lembaga row also has an empty one.
+            ->join('ms_lembaga', "ms_lembaga.nomor_legalitas = tr_lembaga.nomor_lembaga AND tr_lembaga.nomor_lembaga != ''", 'left')
+            ->join('dt_kelurahan kel_i', 'kel_i.id_kelurahan = ms_individu.desa', 'left')
+            ->join('dt_kecamatan kec_i', 'kec_i.id_kecamatan = ms_individu.kecamatan', 'left')
+            ->join('dt_kabupaten kab_i', 'kab_i.id_kabupaten = ms_individu.kabupaten', 'left')
+            ->join('dt_kelurahan kel_l', 'kel_l.id_kelurahan = ms_lembaga.desa', 'left')
+            ->join('dt_kecamatan kec_l', 'kec_l.id_kecamatan = ms_lembaga.kecamatan', 'left')
+            ->join('dt_kabupaten kab_l', 'kab_l.id_kabupaten = ms_lembaga.kabupaten', 'left')
             ->join('ad_program', 'ad_program.id_program = tr_ajuan.id_program', 'left')
             ->join('ad_kategori_program', 'ad_kategori_program.id_kategori_program = tr_ajuan.id_kategori_program', 'left')
             ->join('dt_pilar', 'dt_pilar.id_pilar = ad_kategori_program.id_pilar', 'left')
@@ -189,10 +203,15 @@ class Home extends BaseController
 
         $kolom = [
             'No', 'Nomor Ajuan', 'Tanggal Diajukan', 'Jenis Ajuan', 'Pilar', 'Kategori Program',
-            'Kegiatan', 'Nama Pemohon', 'NIK Pemohon', 'Penerima Manfaat', 'Status', 'Sifat Bantuan',
+            'Kegiatan', 'Nama Pemohon', 'NIK Pemohon', 'No. HP Pemohon', 'Penerima Manfaat',
+            'No. HP Mustahik', 'Alamat Mustahik', 'Status', 'Sifat Bantuan',
             'Nilai Diajukan (Rp)', 'Nilai Disetujui (Rp)', 'Dana Tersalurkan (Rp)',
         ];
+        // Column letter by header label, so adding a column never leaves the
+        // nominal/TOTAL cells below pointing at the wrong letter.
+        $col     = static fn (string $label): string => chr(ord('A') + array_search($label, $kolom, true));
         $lastCol = chr(ord('A') + count($kolom) - 1);
+        $teks    = static fn ($v): string => ($v !== null && trim((string) $v) !== '') ? trim((string) $v) : '-';
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -236,39 +255,58 @@ class Home extends BaseController
             $totalDisetujui   += (float) $nilaiDisetujui;
             $totalTersalurkan += $dana;
 
-            $sheet->setCellValue('A' . $baris, $i + 1);
-            $sheet->setCellValueExplicit('B' . $baris, $r['nomor_ajuan'], DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('C' . $baris, format_tanggal_indo($r['tgl_diajukan']), DataType::TYPE_STRING);
-            $sheet->setCellValue('D' . $baris, $r['jenis_ajuan']);
-            $sheet->setCellValue('E' . $baris, $r['nama_pilar'] ?? '-');
-            $sheet->setCellValue('F' . $baris, $r['nama_kategori'] ?? '-');
-            $sheet->setCellValue('G' . $baris, $r['nama_program'] ?? '-');
-            $sheet->setCellValue('H' . $baris, $r['nama_pemohon'] ?? '-');
-            $sheet->setCellValueExplicit('I' . $baris, $r['nik'], DataType::TYPE_STRING);
-            $sheet->setCellValue('J' . $baris, $namaPenerima);
-            $sheet->setCellValue('K' . $baris, $r['keterangan_status'] ?? '-');
-            $sheet->setCellValue('L' . $baris, $r['sifat_bantuan'] ?? '-');
-            $sheet->setCellValue('M' . $baris, $nilaiDiajukan);
-            $sheet->setCellValue('N' . $baris, $nilaiDisetujui);
-            $sheet->setCellValue('O' . $baris, $dana);
+            $alamat = implode(', ', array_filter([
+                trim((string) ($r['alamat_mustahik'] ?? '')),
+                $r['kelurahan_mustahik'] ?? null,
+                $r['kecamatan_mustahik'] ?? null,
+                $r['kabupaten_mustahik'] ?? null,
+            ]));
+
+            $sheet->setCellValue($col('No') . $baris, $i + 1);
+            $sheet->setCellValueExplicit($col('Nomor Ajuan') . $baris, $r['nomor_ajuan'], DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit($col('Tanggal Diajukan') . $baris, format_tanggal_indo($r['tgl_diajukan']), DataType::TYPE_STRING);
+            $sheet->setCellValue($col('Jenis Ajuan') . $baris, $r['jenis_ajuan']);
+            $sheet->setCellValue($col('Pilar') . $baris, $r['nama_pilar'] ?? '-');
+            $sheet->setCellValue($col('Kategori Program') . $baris, $r['nama_kategori'] ?? '-');
+            $sheet->setCellValue($col('Kegiatan') . $baris, $r['nama_program'] ?? '-');
+            $sheet->setCellValue($col('Nama Pemohon') . $baris, $r['nama_pemohon'] ?? '-');
+            $sheet->setCellValueExplicit($col('NIK Pemohon') . $baris, $r['nik'], DataType::TYPE_STRING);
+            // Phone numbers as text so Excel keeps the leading 0.
+            $sheet->setCellValueExplicit($col('No. HP Pemohon') . $baris, $teks($r['telepon_pemohon'] ?? null), DataType::TYPE_STRING);
+            $sheet->setCellValue($col('Penerima Manfaat') . $baris, $namaPenerima);
+            $sheet->setCellValueExplicit($col('No. HP Mustahik') . $baris, $teks($r['telepon_mustahik'] ?? null), DataType::TYPE_STRING);
+            $sheet->setCellValue($col('Alamat Mustahik') . $baris, $teks($alamat));
+            $sheet->setCellValue($col('Status') . $baris, $r['keterangan_status'] ?? '-');
+            $sheet->setCellValue($col('Sifat Bantuan') . $baris, $r['sifat_bantuan'] ?? '-');
+            $sheet->setCellValue($col('Nilai Diajukan (Rp)') . $baris, $nilaiDiajukan);
+            $sheet->setCellValue($col('Nilai Disetujui (Rp)') . $baris, $nilaiDisetujui);
+            $sheet->setCellValue($col('Dana Tersalurkan (Rp)') . $baris, $dana);
 
             $baris++;
         }
 
-        $sheet->mergeCells('A' . $baris . ':L' . $baris)->setCellValue('A' . $baris, 'TOTAL (' . count($rows) . ' ajuan)');
+        $colDiajukan    = $col('Nilai Diajukan (Rp)');
+        $colTersalurkan = $col('Dana Tersalurkan (Rp)');
+        $colSebelumNilai = chr(ord($colDiajukan) - 1);
+
+        $sheet->mergeCells('A' . $baris . ':' . $colSebelumNilai . $baris)->setCellValue('A' . $baris, 'TOTAL (' . count($rows) . ' ajuan)');
         $sheet->getStyle('A' . $baris)->getFont()->setBold(true);
         $sheet->getStyle('A' . $baris)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-        $sheet->setCellValue('M' . $baris, $totalDiajukan);
-        $sheet->setCellValue('N' . $baris, $totalDisetujui);
-        $sheet->setCellValue('O' . $baris, $totalTersalurkan);
-        $sheet->getStyle('M' . $baris . ':O' . $baris)->getFont()->setBold(true);
+        $sheet->setCellValue($colDiajukan . $baris, $totalDiajukan);
+        $sheet->setCellValue($col('Nilai Disetujui (Rp)') . $baris, $totalDisetujui);
+        $sheet->setCellValue($colTersalurkan . $baris, $totalTersalurkan);
+        $sheet->getStyle($colDiajukan . $baris . ':' . $colTersalurkan . $baris)->getFont()->setBold(true);
 
-        $sheet->getStyle('M' . ($headerRow + 1) . ':O' . $baris)->getNumberFormat()->setFormatCode('#,##0');
+        $sheet->getStyle($colDiajukan . ($headerRow + 1) . ':' . $colTersalurkan . $baris)->getNumberFormat()->setFormatCode('#,##0');
         $sheet->getStyle('A' . $headerRow . ':' . $lastCol . $baris)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
 
-        foreach (range('A', $lastCol) as $col) {
-            $sheet->getColumnDimension($col)->setAutoSize(true);
+        foreach (range('A', $lastCol) as $huruf) {
+            $sheet->getColumnDimension($huruf)->setAutoSize(true);
         }
+        // Addresses can run long - fixed width + wrap instead of one huge column.
+        $colAlamat = $col('Alamat Mustahik');
+        $sheet->getColumnDimension($colAlamat)->setAutoSize(false)->setWidth(45);
+        $sheet->getStyle($colAlamat . ($headerRow + 1) . ':' . $colAlamat . $baris)->getAlignment()->setWrapText(true)->setVertical(Alignment::VERTICAL_TOP);
         $sheet->freezePane('A' . ($headerRow + 1));
 
         $namaFile = 'Rekap-Pengajuan-' . ($dari ?: 'awal') . '_sd_' . ($sampai ?: 'sekarang') . '.xlsx';
